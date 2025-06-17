@@ -1,0 +1,32 @@
+<ModMetaData>
+	<name>Genetic Heads Framework for [NL] Facial Animation</name>
+	<author>SunshineyDays</author>
+	<packageId>sd.fa.geneticheadsframework</packageId>
+
+	<supportedVersions>
+		<li>1.5</li>
+	</supportedVersions>
+
+	<description>Core framework for assigning [NL] Facial Animation heads based on Biotech-type genes. Intended as a dependency for head packs. Supports multi-gene logic, modular head packs, and fallback handling.
+
+- Dynamically maps head types to specific gene combinations using mod extensions on HeadTypeDefs 
+- Automatically selects the most specific match for a pawn's gene set, or falls back to race/gender-appropriate heads if none match
+- Includes dev-mode gizmos to assign or clear head overrides on any pawn
+- Adds variety by randomly selecting one of several head types when a gene rule offers multiple choices
+	</description>
+
+	<loadAfter>
+		<li>facial.animation</li>
+		<li>vanillaexpanded.vtexe.facialanims</li>
+		<li>sd.fa.vte.moreheadshapes</li>
+	</loadAfter>
+
+	<modDependencies>
+		<li>
+			<packageId>nals.facialanimation</packageId>
+			<displayName>[NL] Facial Animation - WIP</displayName>
+			<steamWorkshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=1635901197</steamWorkshopUrl>
+		</li>
+	</modDependencies>
+	
+</ModMetaData>

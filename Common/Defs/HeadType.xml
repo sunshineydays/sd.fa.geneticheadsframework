@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<Defs>
+
+  <!-- EXAMPLE HEAD TYPE TEMPLATE: Define this in your own mod -->
+  <!--
+  <FacialAnimation.HeadTypeDef>
+    <defName>HeadType_ExampleHead</defName>
+    <texPath>ExampleTexture</texPath>
+    <probability>0</probability>
+    <shader>Map/CutoutSkin</shader>
+    <shaderColorOverride>Map/CutoutSkinOverride</shaderColorOverride>
+    <modExtensions>
+      <li Class="FacialAnimationGeneticHeads.FARequiredGenes">
+        <requiredGenes>
+          <li>Furskin</li>
+          <li>Jaw_Heavy</li>
+        </requiredGenes>
+      </li>
+    </modExtensions>
+  </FacialAnimation.HeadTypeDef>
+  -->
+
+</Defs>
