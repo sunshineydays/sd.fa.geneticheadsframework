@@ -16,9 +16,9 @@ This mod connects Biotech genes to Facial Animation head types. If you have the 
 ## Seamless Visual Storytelling
 This mod provides *immersion* and a base game-like experience; a child inherits gaunt features from a Waster parent, a Yttakin tribe has slight variation, all without micromanagement. 
 
-Check out my [Biotech Head Pack](https://steamcommunity.com/sharedfiles/filedetails/?id=3501317537) for vanilla Biotech heads edited to work with Facial Animation. Pairs very nicely with [Vanilla Textures Expanded](url=https://steamcommunity.com/sharedfiles/filedetails/?id=2816938779).
+Check out my [Biotech Head Pack](https://steamcommunity.com/sharedfiles/filedetails/?id=3501317537) for vanilla Biotech heads edited to work with Facial Animation. Pairs very nicely with [Vanilla Textures Expanded](https://steamcommunity.com/sharedfiles/filedetails/?id=2816938779).
 
-Also check out my [Mod Head Pack](url=https://steamcommunity.com/sharedfiles/filedetails/?id=3501317734) for some heads from mods, also in vanilla style (VRE, Roo's).
+Also check out my [Mod Head Pack](https://steamcommunity.com/sharedfiles/filedetails/?id=3501317734) for some heads from mods, also in vanilla style (VRE, Roo's).
 
 ## Modder-Friendly
 Make your own head packs! Make sure it's Facial Animation appropriate (no eyes, same folder system as Facial Animation, etc) and then add Defs with this XML:
