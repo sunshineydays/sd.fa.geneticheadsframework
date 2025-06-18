@@ -39,6 +39,16 @@ Make your own head packs! Make sure it's Facial Animation appropriate (no eyes, 
     </modExtensions>
 </FacialAnimation.HeadTypeDef>
 ```
+Also be sure to add this mod as a dependency!
+```
+<modDependencies>
+  <li>
+    <packageId>sd.fa.geneticheadsframework</packageId>
+    <displayName>Genetic Heads Framework for [NL] Facial Animation</displayName>
+    <steamWorkshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3498759997</steamWorkshopUrl>
+  </li>
+</modDependencies>
+```
 
 ## Plans
 - 1.6 compatibility
