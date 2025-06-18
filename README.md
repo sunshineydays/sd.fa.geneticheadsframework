@@ -48,4 +48,4 @@ Make your own head packs! Make sure it's Facial Animation appropriate (no eyes, 
 ### A Note from Me
 I'm open to feedback! I've tested this mod on my own game of 731 mods (not even joking about the number XD) and I didn't notice any slowdown or performance issues beyond what I'm used to in a heavily modded game.
 
-And just a heads up, this is my first C# mod, so I'm almost entirely sure I've done something that isn't as efficient as it could be. If anyone who knows their way around the language wants to check it out, I've posted the framework code on GitHub. I'm happy to update with improvements and credit appropriately.
+And just a heads up, this is my first C# mod, so I'm almost entirely sure I've done something that isn't as efficient as it could be. If anyone who knows their way around the language wants to check it out, look at the Source folder here. I'm happy to update with improvements and credit appropriately.
