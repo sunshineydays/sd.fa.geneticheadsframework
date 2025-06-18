@@ -32,7 +32,7 @@ namespace FacialAnimationGeneticHeads
             {
                 defaultLabel = "Override Head (Dev)",
                 defaultDesc = "Manually assign a HeadTypeDef override to this pawn.",
-                icon = TexCommand.Attack, // Any icon will do
+                icon = TexCommand.Attack, // For now
                 action = () =>
                 {
                     var allHeads = DefDatabase<FacialAnimation.HeadTypeDef>.AllDefsListForReading;
