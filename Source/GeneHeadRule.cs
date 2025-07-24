@@ -1,10 +1,9 @@
 using System.Collections.Generic;
-using FacialAnimation;
 using Verse;
 
 namespace FacialAnimationGeneticHeads
 {
-    // A rule representing a set of required genes and the head(s) it maps to
+    // represents a set of required genes and the head(s) it maps to
     public class GeneHeadRule
     {
         public HashSet<GeneDef> requiredGenes; // gene combo that must be active

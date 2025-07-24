@@ -5,13 +5,13 @@ using RimWorld;
 
 namespace FacialAnimationGeneticHeads
 {
-    // This Harmony patch ensures that if a manual override exists for a pawn, it will always be enforced—even if another system (like the UI or refresh) tries to set a different FaceType.
+    // if a manual override exists, it will always be enforced
     [HarmonyPatch(typeof(HeadControllerComp))]
-    [HarmonyPatch("set_FaceType")]  // Intercepts the FaceType property setter
+    [HarmonyPatch("set_FaceType")] 
     public static class Patch_FaceTypeSetter
     {
-        // Postfix runs AFTER FaceType is set by anything (UI, refresh, other mods).
-        // If a manual override exists for this pawn, it will re-apply it and force a reload.
+        // postfix runs AFTER FaceType is set by anything (UI, refresh, other mods)
+        // if a manual override exists for this pawn, it will re-apply it
         public static void Postfix(HeadControllerComp __instance, FacialAnimation.HeadTypeDef value)
         {
             Pawn pawn = Traverse.Create(__instance).Field("pawn").GetValue<Pawn>();
@@ -19,10 +19,10 @@ namespace FacialAnimationGeneticHeads
 
             FacialAnimation.HeadTypeDef manual = ManualHeadOverrides.GetOverride(pawn);
 
-            // Prevent infinite loop: only override if the value is not already the manual one
+            // prevent infinite loop: only override if the value is not already the manual one
             if (manual != null && value != manual)
             {
-                // Only set field directly, avoid calling setter again
+                // only set field directly, avoid calling setter again
                 Traverse.Create(__instance).Field("faceType").SetValue(manual);
                 __instance.ReloadIfNeed();
                 PortraitsCache.SetDirty(pawn);

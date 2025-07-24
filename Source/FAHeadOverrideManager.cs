@@ -1,16 +1,11 @@
 using System.Collections.Generic;
-using System.Linq;
 using Verse;
-using FacialAnimation;
-using UnityEngine;
-using HarmonyLib;
-using RimWorld;
 
 namespace FacialAnimationGeneticHeads
 {
     public class FAHeadOverrideManager : GameComponent
     {
-        // Dictionary that stores override assignments by unique pawn ID
+        // dictionary that stores override assignments by unique pawn ID
         private static Dictionary<string, string> overrideLookup = new Dictionary<string, string>();
 
         public FAHeadOverrideManager(Game game) { }
@@ -48,65 +43,4 @@ namespace FacialAnimationGeneticHeads
         }
     }
 
-    [StaticConstructorOnStartup]
-    public static class DebugClearManualOverrideGizmo
-    {
-        static DebugClearManualOverrideGizmo()
-        {
-            HarmonyLib.Harmony harmony = new HarmonyLib.Harmony("sd.geneticheads.debugclear");
-            harmony.Patch(
-                original: AccessTools.Method(typeof(Pawn), nameof(Pawn.GetGizmos)),
-                postfix: new HarmonyLib.HarmonyMethod(typeof(DebugClearManualOverrideGizmo), nameof(Postfix_GetGizmos))
-            );
-        }
-
-        public static void Postfix_GetGizmos(Pawn __instance, ref IEnumerable<Gizmo> __result)
-        {
-            if (!Prefs.DevMode || __instance == null || !__instance.RaceProps.Humanlike)
-                return;
-
-            List<Gizmo> list = __result.ToList();
-
-            list.Add(new Command_Action
-            {
-                defaultLabel = "Clear Head Override (Dev)",
-                defaultDesc = "Remove manual head override from this pawn.",
-                icon = TexCommand.ClearPrioritizedWork,
-                action = () =>
-                {
-                    FAHeadOverrideManager.ClearOverride(__instance);
-                    __instance.GetComp<HeadControllerComp>()?.ReloadIfNeed();
-                    PortraitsCache.SetDirty(__instance);
-                    __instance.Drawer?.renderer?.SetAllGraphicsDirty();
-
-                    if (Prefs.DevMode)
-                        Log.Message($"[FA Heads] Cleared manual override for {__instance.LabelCap}");
-                }
-            });
-
-            __result = list;
-        }
-    }
-
-    // Integrate into pawn initialization
-    [StaticConstructorOnStartup]
-    public static class Patch_RestoreHeadOverrideOnLoad
-    {
-        static Patch_RestoreHeadOverrideOnLoad()
-        {
-            new HarmonyLib.Harmony("sd.geneticheads.restoreload").Patch(
-                original: AccessTools.Method(typeof(HeadControllerComp), nameof(HeadControllerComp.InitializeIfNeed)),
-                postfix: new HarmonyLib.HarmonyMethod(typeof(Patch_RestoreHeadOverrideOnLoad), nameof(Postfix_InitializeIfNeed))
-            );
-        }
-
-        public static void Postfix_InitializeIfNeed(HeadControllerComp __instance)
-        {
-            Pawn pawn = Traverse.Create(__instance).Field("pawn").GetValue<Pawn>();
-            if (pawn != null && ManualHeadOverrides.GetOverride(pawn) == null)
-            {
-                FAHeadOverrideManager.RestoreOverrideIfAvailable(pawn);
-            }
-        }
-    }
 }

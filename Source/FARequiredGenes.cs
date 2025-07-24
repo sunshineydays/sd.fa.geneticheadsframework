@@ -3,10 +3,10 @@ using Verse;
 
 namespace FacialAnimationGeneticHeads
 {
-    // Mod extension class that allows you to define required genes for a HeadTypeDef
+    // mod extension class to define required genes for a HeadTypeDef
     public class FARequiredGenes : DefModExtension
     {
-        // List of gene defNames required to use the given head
+        // list of GeneDefs required to use the given head
         public List<string> requiredGenes;
         public FARequiredGenes() { }
     }

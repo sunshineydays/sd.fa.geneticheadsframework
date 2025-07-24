@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using FacialAnimation;
 using Verse;
 
 namespace FacialAnimationGeneticHeads
