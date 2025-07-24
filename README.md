@@ -51,7 +51,6 @@ Also be sure to add this mod as a dependency!
 ```
 
 ## Plans
-- 1.6 compatibility
 - more mods supported (see mod head pack for these)
 - fancier screenshots & such
 
