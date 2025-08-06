@@ -20,6 +20,8 @@ namespace FacialAnimationGeneticHeads
             listing.Begin(inRect);
             listing.CheckboxLabeled("Enable debug logging", ref settings.enableDebugLogging);
             listing.CheckboxLabeled("Allow random head variant selection", ref settings.allowRandomSelection);
+            listing.CheckboxLabeled("Show manual head override gizmo in dev mode", ref settings.showManualOverrideGizmo);
+            listing.CheckboxLabeled("Show clear manual head override gizmo in dev mode", ref settings.showClearManualOverrideGizmo);
             listing.End();
         }
     }
