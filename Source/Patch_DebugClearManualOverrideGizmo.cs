@@ -22,7 +22,7 @@ namespace FacialAnimationGeneticHeads
 
         public static void Postfix_GetGizmos(Pawn __instance, ref IEnumerable<Gizmo> __result)
         {
-            if (!Prefs.DevMode || __instance == null || !__instance.RaceProps.Humanlike)
+            if (!Prefs.DevMode || !FAHeadMod.settings.showClearManualOverrideGizmo || __instance == null || !__instance.RaceProps.Humanlike)
                 return;
 
             List<Gizmo> list = __result.ToList();
