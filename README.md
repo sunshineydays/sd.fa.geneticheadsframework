@@ -1,9 +1,9 @@
-# Genetic Heads Framework for Facial Animation
+# Genetic Framework for Facial Animation
 *Seamlessly match your pawns’ faces to their genes!
 Automatic storytelling with total override control.*
 
 ## What This Mod Does
-This mod connects Biotech genes to Facial Animation head types. If you have the head textures with the right code in your mods, this mod will automatically apply the appropriate head to your pawns.
+This mod connects Biotech genes to Facial Animation features. If you have the textures and the right code in your mods, this mod will automatically apply the appropriate head to your pawns.
 
 ## Features
 - Automatic face assignment based on Biotech genes  
