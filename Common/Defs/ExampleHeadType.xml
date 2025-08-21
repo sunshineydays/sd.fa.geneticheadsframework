@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<Defs>
+
+  <!-- To Add, Very Specifically, an FA Head ONLY for the Genetic Heads Framework Mod -->
+  <!-- otherwise, check out the sample patches -->
+  <!--
+  <FacialAnimation.HeadTypeDef>
+    <defName>HeadType_ExampleHead</defName>
+    <texPath>ExampleTexture</texPath>
+    <probability>0</probability>
+    <shader>Map/CutoutSkin</shader>
+    <shaderColorOverride>Map/CutoutSkinOverride</shaderColorOverride>
+    <modExtensions>
+      <li Class="FacialAnimationGeneticHeads.FARequiredGenes">
+        <requiredGenes>
+          <li>Furskin</li>
+          <li>Jaw_Heavy</li>
+        </requiredGenes>
+      </li>
+    </modExtensions>
+  </FacialAnimation.HeadTypeDef>
+  -->
+
+</Defs>

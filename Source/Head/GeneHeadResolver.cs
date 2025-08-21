@@ -83,11 +83,32 @@ namespace FacialAnimationGeneticHeads
             {
                 if (rule.requiredGenes.IsSubsetOf(activeGenes))
                 {
-                    var head = rule.headDefs.Count == 1
-                        ? rule.headDefs[0]
-                        : rule.headDefs[Rand.Range(0, rule.headDefs.Count)];
+                    FacialAnimation.HeadTypeDef head;
 
-                    headCache[activeGenes] = head;
+                    if (rule.headDefs.Count == 1)
+                    {
+                        // single option: safe to cache by gene set
+                        head = rule.headDefs[0];
+                        headCache[activeGenes] = head;
+                        return head;
+                    }
+
+                    // multiple options: deterministic selection per pawn ID
+                    int idx;
+                    Rand.PushState();
+                    try
+                    {
+                        Rand.Seed = pawn.thingIDNumber; // deterministic per pawn
+                        idx = Rand.Range(0, rule.headDefs.Count);
+                    }
+                    finally
+                    {
+                        Rand.PopState();
+                    }
+
+                    head = rule.headDefs[idx];
+
+                    // do NOT cache multi-option results by gene set, or all pawns would share the first pawn's pick
                     return head;
                 }
             }

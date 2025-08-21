@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Patch>
+<!-- 1: To Add Only Gene Info to a Mod -->
+<!-- if it IS a FacialAnimation mod already -->
+<!--
+
+	<Operation Class="PatchOperationFindMod">
+		<mods>
+			<li>Genetic Heads Framework for [NL] Facial Animation</li>
+		</mods>
+		<match Class="PatchOperationAdd">
+			<xpath>/Defs/FacialAnimation.HeadTypeDef[defName="def_Name_here"]</xpath>
+			<value>
+			
+				<modExtensions>
+					<li Class="FacialAnimationGeneticHeads.FARequiredGenes">
+						<requiredGenes>
+							<li>geneDefName</li>
+						</requiredGenes>
+					</li>
+				</modExtensions>
+				
+			</value>
+		</match>
+	</Operation>
+-->
+
+<!-- 2: To Add FA Heads to a Mod -->
+<!-- if it was NOT a FacialAnimation mod already -->
+<!--
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Name of Mod to Patch</li>
+    </mods>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs</xpath>
+      <value>
+	  
+	<FacialAnimation.HeadTypeDef>
+		<defName>FAHeadTypeDefName</defName>
+		<texPath>example/folderpath</texPath>
+		<probability>0</probability>
+		<shader>Map/CutoutComplex</shader>
+  		<modExtensions>
+			<li Class="FacialAnimationGeneticHeads.FARequiredGenes">
+				<requiredGenes>
+					<li>geneDefName</li>
+				</requiredGenes>
+			</li>
+		</modExtensions>
+	</FacialAnimation.HeadTypeDef>
+	
+      </value>
+    </match>
+  </Operation>
+-->
+
+<!-- 3: To Remove Facial Animation Xenotype Compatibility (FAXC) Rendering -->
+<!-- if the head types are supported by FAXC. to be used with patch type #2 above -->
+<!-- also be sure to load the head pack mod YOU MAKE after FAXC -->
+<!--
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Name of Mod to Patch</li>
+    </mods>
+    <match Class="PatchOperationFindMod">
+      <mods>
+        <li>Facial Animations Xenotype Compatibility</li>
+      </mods>
+      <match Class="PatchOperationRemove">
+        <xpath>Defs/GeneDef[defName="geneDefName"]/renderNodeProperties</xpath>
+      </match>
+    </match>
+  </Operation>
+-->
+</Patch>

@@ -42,9 +42,20 @@ namespace FacialAnimationGeneticHeads
                 return defaultHead;
             }
 
-            // random weighted selection based on <probability>
+            // weighted selection, now deterministic per pawn by seeding with thingIDNumber
             float totalWeight = candidates.Sum(h => h.probability);
-            float rand = Rand.Value * totalWeight;
+
+            float rand;
+            Rand.PushState();
+            try
+            {
+                Rand.Seed = pawn.thingIDNumber; // deterministic per pawn
+                rand = Rand.Value * totalWeight; 
+            }
+            finally
+            {
+                Rand.PopState();
+            }
 
             foreach (var head in candidates)
             {
@@ -57,7 +68,7 @@ namespace FacialAnimationGeneticHeads
             }
 
             // in case rounding leaves none selected
-            fallbackCache[pawn] = candidates.First(); 
+            fallbackCache[pawn] = candidates.First();
             return candidates.First();
         }
     }

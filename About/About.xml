@@ -4,21 +4,34 @@
 	<packageId>sd.fa.geneticheadsframework</packageId>
 
 	<supportedVersions>
+		<li>1.6</li>
 		<li>1.5</li>
 	</supportedVersions>
 
-	<description>Core framework for assigning [NL] Facial Animation heads based on Biotech-type genes. Intended as a dependency for head packs. Supports multi-gene logic, modular head packs, and fallback handling.
+	<description>Core framework for assigning [NL] Facial Animation based on Biotech-type genes. Intended as a dependency for head packs. Supports multi-gene logic, modular head packs, and fallback handling.
 
-- Dynamically maps head types to specific gene combinations using mod extensions on HeadTypeDefs 
-- Automatically selects the most specific match for a pawn's gene set, or falls back to race/gender-appropriate heads if none match
+- Dynamically maps to specific gene combinations using mod extensions 
+- Automatically selects the most specific match for a pawn's gene set, or falls back to race/gender-appropriate ones if none match
 - Includes dev-mode gizmos to assign or clear head overrides on any pawn
 - Adds variety by randomly selecting one of several head types when a gene rule offers multiple choices
 	</description>
 
 	<loadAfter>
-		<li>facial.animation</li>
-		<li>vanillaexpanded.vtexe.facialanims</li>
-		<li>sd.fa.vte.moreheadshapes</li>
+		<li>ludeon.rimworld.biotech</li>
+		<li>void.charactereditor</li>
+		<li>nals.facialanimation</li>
+		<li>hawkwood.facialanimationsxenotypecompatibility</li>
+<!-- 		<li>sarg.alphagenes</li>
+		<li>vanillaracesexpanded.saurid</li>
+		<li>vanillaracesexpanded.android</li>
+		<li>vanillaracesexpanded.genie</li>
+		<li>vanillaracesexpanded.phytokin</li>
+		<li>vanillaracesexpanded.insector</li>		
+		<li>erin.auronyabiotech</li>
+		<li>erin.corvyia</li>
+		<li>erin.fenrisulfr</li>
+		<li>erin.shisune</li>
+		<li>rooboid.faun</li> -->
 	</loadAfter>
 
 	<modDependencies>

@@ -1,7 +1,7 @@
+using System;
+using FacialAnimation;
 using HarmonyLib;
 using Verse;
-using FacialAnimation;
-using System;
 
 namespace FacialAnimationGeneticHeads
 {
@@ -13,11 +13,23 @@ namespace FacialAnimationGeneticHeads
             try
             {
                 var harmony = new Harmony("sd.geneticheads.patch");
+
+                // Patch the closed generic base, not the subclass
+                var baseType = typeof(ControllerBaseComp<FacialAnimation.HeadTypeDef, HeadShapeDef>);
+                var method = AccessTools.Method(baseType, "InitializeIfNeed");
+
+                if (method == null)
+                {
+                    Log.Error("[FA Heads] Could not find InitializeIfNeed for heads.");
+                    return;
+                }
+
                 harmony.Patch(
-                    original: AccessTools.Method(typeof(HeadControllerComp), nameof(HeadControllerComp.InitializeIfNeed)),
+                    original: method,
                     postfix: new HarmonyMethod(typeof(Patch_HeadControllerComp), nameof(InitializeIfNeed_Postfix))
                 );
-                Log.Message("[FA Heads] Harmony patch active.");
+
+                Log.Message("[FA Heads] Head patch active.");
             }
             catch (Exception ex)
             {
@@ -25,12 +37,14 @@ namespace FacialAnimationGeneticHeads
             }
         }
 
-        public static void InitializeIfNeed_Postfix(HeadControllerComp __instance)
+        public static void InitializeIfNeed_Postfix(object __instance)
         {
             try
             {
-                // get pawn reference via reflection (private field)
-                Pawn pawn = Traverse.Create(__instance).Field("pawn").GetValue<Pawn>();
+                var headComp = __instance as HeadControllerComp;
+                if (headComp == null) return;
+
+                Pawn pawn = Traverse.Create(headComp).Field("pawn").GetValue<Pawn>();
                 if (pawn == null || pawn.genes == null)
                 {
                     if (Prefs.DevMode)
@@ -43,13 +57,13 @@ namespace FacialAnimationGeneticHeads
                 var match = manual ?? GeneHeadResolver.Match(pawn) ?? FallbackHeadUtility.GetFallbackHead(pawn);
 
                 // get current faceType
-                var current = Traverse.Create(__instance).Field("faceType").GetValue<FacialAnimation.HeadTypeDef>();
+                var current = Traverse.Create(headComp).Field("faceType").GetValue<FacialAnimation.HeadTypeDef>();
 
                 // if the current head is different, assign the new one
                 if (match != null && current != match)
                 {
-                    Traverse.Create(__instance).Field("faceType").SetValue(match);
-                    __instance.ReloadIfNeed();
+                    Traverse.Create(headComp).Field("faceType").SetValue(match);
+                    headComp.ReloadIfNeed();
 
                     if (Prefs.DevMode)
                         Log.Message($"[FA Heads] Assigned head '{match.defName}' to {pawn.LabelShortCap}");

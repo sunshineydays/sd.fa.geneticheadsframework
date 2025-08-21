@@ -38,12 +38,16 @@
       <HintPath>..\..\..\RimWorldWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="CharacterEditor">
+      <HintPath>..\..\..\..\..\workshop\content\294100\1874644848\v1.6\Assemblies\CharacterEditor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="FacialAnimation">
       <HintPath>..\..\..\..\..\workshop\content\294100\1635901197\1.5\Assemblies\FacialAnimation.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="HarmonyMod">
-      <HintPath>..\..\..\..\..\workshop\content\294100\2009463077\Current\Assemblies\HarmonyMod.dll</HintPath>
+      <HintPath>..\..\..\..\..\workshop\content\294100\2009463077\1.5\Assemblies\HarmonyMod.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -62,20 +66,73 @@
     <None Include="..\Common\Patches\**" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DebugManualOverrideGizmo.cs" />
-    <Compile Include="FacialAnimationUtil.cs" />
-    <Compile Include="FAHeadMod.cs" />
-    <Compile Include="FAHeadOverrideManager.cs" />
-    <Compile Include="FallbackHeadUtility.cs" />
+    <Compile Include="Head\FallbackHeadUtility.cs" />
+    <Compile Include="Head\GeneHeadResolver.cs" />
+    <Compile Include="Testing\Patch_FaceTypeSetter_Head.cs" />
+    <None Include="Testing\Old\Patch_HeadControllerComp.cs" />
+    <None Include="Anomaly\Testing_Patch_HeadControllerComp.cs" />
+    <None Include="Old\GeneResolverOld\GeneResolver.cs" />
+    <None Include="Old\GeneResolverOld\GeneResolverEmotionType.cs" />
+    <None Include="Old\GeneResolverOld\GeneResolverBrowType.cs" />
+    <None Include="Old\GeneResolverOld\GeneResolverEyeballType.cs" />
+    <None Include="Old\GeneResolverOld\GeneResolverHeadType.cs" />
+    <None Include="Old\GeneResolverOld\GeneResolverLidType.cs" />
+    <None Include="Old\GeneResolverOld\GeneResolverMouthType.cs" />
+    <None Include="Old\GeneResolverOld\GeneResolverSkinType.cs" />
+    <None Include="Old\GeneResolver\GeneResolver.cs" />
+    <None Include="Old\GeneResolver\GeneResolverBrowType.cs" />
+    <None Include="Old\GeneResolver\GeneResolverEmotionType.cs" />
+    <None Include="Old\GeneResolver\GeneResolverEyeballType.cs" />
+    <None Include="Old\GeneResolver\GeneResolverHeadType.cs" />
+    <None Include="Old\GeneResolver\GeneResolverLidType.cs" />
+    <None Include="Old\GeneResolver\GeneResolverMouthType.cs" />
+    <None Include="Old\GeneResolver\GeneResolverSkinType.cs" />
+    <None Include="Old\GeneResolver\Patch_BrowControllerComp.cs" />
+    <None Include="Old\GeneResolver\Patch_ControllerBase.cs" />
+    <None Include="Old\GeneResolver\Patch_ControllerBase_Brow.cs" />
+    <None Include="Old\GeneResolver\Patch_ControllerBase_Eyeball.cs" />
+    <None Include="Old\GeneResolver\Patch_ControllerBase_Lid.cs" />
+    <None Include="Old\GeneResolver\Patch_ControllerBase_Mouth.cs" />
+    <None Include="Old\GeneResolver\Patch_ControllerBase_Skin.cs" />
+    <None Include="Old\GeneResolver\Patch_EyeballControllerComp.cs" />
+    <None Include="Old\GeneResolver\Patch_LidControllerComp.cs" />
+    <None Include="Old\GeneResolver\Patch_MouthControllerComp.cs" />
+    <None Include="Old\GeneResolver\Patch_SkinControllerComp.cs" />
+    <Compile Include="Head\Override\Patch_DebugClearManualOverrideGizmo.cs" />
+    <Compile Include="Head\Override\Patch_DebugManualOverrideGizmo.cs" />
+    <Compile Include="Head\Override\Utility_ApplyManualHeadOverride.cs" />
+    <Compile Include="FAGeneticMod.cs" />
+    <Compile Include="Head\Override\FAHeadOverrideManager.cs" />
+    <None Include="Old\FallbackHeadUtility.cs" />
     <Compile Include="FARequiredGenes.cs" />
-    <Compile Include="GeneHeadResolver.cs" />
-    <Compile Include="GeneHeadRule.cs" />
-    <Compile Include="ManualHeadOverrides.cs" />
-    <Compile Include="Patch_FaceTypeSetter.cs" />
-    <Compile Include="Patch_HeadControllerComp.cs" />
+    <None Include="Old\GeneHeadResolver.cs" />
+    <Compile Include="Head\GeneHeadRule.cs" />
+    <Compile Include="Head\Override\ManualHeadOverrides.cs" />
+    <None Include="Old\Patch_FaceTypeSetter.cs" />
+    <Compile Include="Head\Override\Patch_HeadControllerComp.cs" />
+    <None Include="Testing\Old\Patch_NL_SelectPartWindow_DrawAnimationPawnParamFacial.cs" />
+    <None Include="Testing\Old\Patch_HeadControllerComp_FaceType_UIOverride.cs" />
+    <None Include="Head\Override\Patch_FaceTypeSetter.cs" />
+    <Compile Include="Head\Override\Patch_RestoreHeadOverrideOnLoad.cs" />
+    <None Include="Testing\Old\Patch_SetFaceTypeFromMenu.cs" />
+    <None Include="Testing\Old\Patch_ThingComp_SetMemberValue.cs" />
+    <Compile Include="Lids\Override\FALidOverrideManager .cs" />
+    <Compile Include="Lids\FallbackLidUtility.cs" />
+    <Compile Include="Lids\GeneLidResolver.cs" />
+    <Compile Include="Lids\Override\ManualLidOverrides.cs" />
+    <Compile Include="Lids\Override\Patch_FaceTypeSetter_Lid.cs" />
+    <Compile Include="Lids\Override\Patch_RestoreLidOverrideOnLoad.cs" />
+    <Compile Include="Lids\Override\Utility_ApplyManualLidOverride.cs.cs" />
+    <Compile Include="Lids\Patch_LidControllerComp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Config.cs" />
-    <Compile Include="Validation.cs" />
+    <Compile Include="FAGeneticModSettings.cs" />
+    <Compile Include="Head\Override\Patch_CE_FacialToolHooks.cs" />
+    <None Include="Testing\Old\Debug_HeadSelectionAnalyzer.cs" />
+    <None Include="Testing\Old\DebugHeadDistribution.cs" />
+    <None Include="Testing\Old\DebugHeadDistribution2.cs" />
+    <None Include="Testing\Old\DebugHeadDistributionWORKING.cs" />
+    <None Include="Validation.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
