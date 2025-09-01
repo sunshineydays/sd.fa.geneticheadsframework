@@ -1,63 +1,60 @@
-﻿using HarmonyLib;
-using FacialAnimation;
-using Verse;
 using System;
 using System.Reflection;
+using FacialAnimation;
+using HarmonyLib;
+using Verse;
 
 namespace FacialAnimationGeneticHeads
 {
     [StaticConstructorOnStartup]
     public static class Patch_FaceTypeSetter
     {
-        static Patch_FaceTypeSetter()
-        {
-            var harmony = new Harmony("sd.geneticheads.setterpatch");
+    	static Patch_FaceTypeSetter()
+    	{
+    		Harmony harmony = new Harmony("sd.geneticheads.setterpatch");
+    		try
+    		{
+    			MethodInfo methodInfo = AccessTools.PropertySetter(typeof(ControllerBaseComp<FacialAnimation.HeadTypeDef, HeadShapeDef>), "FaceType");
+    			MethodInfo method = typeof(Patch_FaceTypeSetter).GetMethod("Postfix", BindingFlags.Static | BindingFlags.NonPublic);
+    			if (methodInfo == null || method == null)
+    			{
+    				Log.Error("[FA Heads] Failed to patch: Could not locate setter or postfix.");
+    			}
+    			else
+    			{
+    				harmony.Patch(methodInfo, null, new HarmonyMethod(method));
+    			}
+    		}
+    		catch (Exception ex)
+    		{
+    			Log.Error("[FA Heads] Error patching FaceType setter: " + ex);
+    		}
+    	}
 
-            try
-            {
-                // Get closed generic base type explicitly
-                var closedType = typeof(ControllerBaseComp<FacialAnimation.HeadTypeDef, HeadShapeDef>);
-                var setter = AccessTools.PropertySetter(closedType, "FaceType");
-                var postfix = typeof(Patch_FaceTypeSetter).GetMethod(nameof(Postfix), BindingFlags.Static | BindingFlags.NonPublic);
-
-                if (setter == null || postfix == null)
-                {
-                    Log.Error("[FA Heads] Failed to patch: Could not locate setter or postfix.");
-                    return;
-                }
-
-                harmony.Patch(setter, postfix: new HarmonyMethod(postfix));
-            }
-            catch (Exception ex)
-            {
-                Log.Error("[FA Heads] Error patching FaceType setter: " + ex);
-            }
-        }
-
-        // still matches: value, instance
-        static void Postfix(FacialAnimation.HeadTypeDef value, ControllerBaseComp<FacialAnimation.HeadTypeDef, HeadShapeDef> __instance)
-        {
-            if (__instance == null || value == null) return;
-
-            // only run for actual HeadControllerComp instances
-            HeadControllerComp headComp = __instance as HeadControllerComp;
-            if (headComp == null) return;
-
-            Pawn pawn = Traverse.Create(headComp).Field("pawn").GetValue<Pawn>();
-            if (pawn == null) return;
-
-            var existing = ManualHeadOverrides.GetOverride(pawn);
-
-            if (Prefs.DevMode)
-                Log.Message($"[FA Heads] FaceType set to {value.defName} for {pawn.LabelShortCap}. Existing override: {existing?.defName ?? "none"}");
-
-            if (existing != value)
-            {
-                Utility_ApplyManualHeadOverride.ApplyManualHeadOverride(pawn, value);
-
-                if (Prefs.DevMode)
-                    Log.Message($"[FA Heads] Saved {value.defName} as manual override for {pawn.LabelShortCap}");
-            }
-        }
+    	private static void Postfix(FacialAnimation.HeadTypeDef value, ControllerBaseComp<FacialAnimation.HeadTypeDef, HeadShapeDef> __instance)
+    	{
+    		if (__instance == null || value == null || !(__instance is HeadControllerComp root))
+    		{
+    			return;
+    		}
+    		Pawn value2 = Traverse.Create(root).Field("pawn").GetValue<Pawn>();
+    		if (value2 == null)
+    		{
+    			return;
+    		}
+    		FacialAnimation.HeadTypeDef headTypeDef = ManualHeadOverrides.GetOverride(value2);
+    		if (Prefs.DevMode)
+    		{
+    			Log.Message("[FA Heads] FaceType set to " + value.defName + " for " + value2.LabelShortCap + ". Existing override: " + (headTypeDef?.defName ?? "none"));
+    		}
+    		if (headTypeDef != value)
+    		{
+    			FacialAnimationUtil.ApplyManualHeadOverride(value2, value);
+    			if (Prefs.DevMode)
+    			{
+    				Log.Message("[FA Heads] Saved " + value.defName + " as manual override for " + value2.LabelShortCap);
+    			}
+    		}
+    	}
     }
 }

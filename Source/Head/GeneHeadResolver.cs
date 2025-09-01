@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FacialAnimation;
 using Verse;
 
 namespace FacialAnimationGeneticHeads
@@ -8,133 +9,120 @@ namespace FacialAnimationGeneticHeads
     [StaticConstructorOnStartup]
     public static class GeneHeadResolver
     {
-        // list of all valid gene-head rules loaded from defs
-        public static List<GeneHeadRule> GeneHeadMap = new List<GeneHeadRule>();
+    	private class GeneSetComparer : IEqualityComparer<HashSet<GeneDef>>
+    	{
+    		public bool Equals(HashSet<GeneDef> x, HashSet<GeneDef> y)
+    		{
+    			return x.SetEquals(y);
+    		}
 
-        // cache to avoid recomputing gene matches per pawn
-        private static Dictionary<HashSet<GeneDef>, FacialAnimation.HeadTypeDef> headCache =
-            new Dictionary<HashSet<GeneDef>, FacialAnimation.HeadTypeDef>(new GeneSetComparer());
+    		public int GetHashCode(HashSet<GeneDef> obj)
+    		{
+    			int num = 17;
+    			foreach (GeneDef item in obj.OrderBy((GeneDef g) => g.shortHash))
+    			{
+    				num = num * 31 + item.shortHash;
+    			}
+    			return num;
+    		}
+    	}
 
-        static GeneHeadResolver()
-        {
-            try
-            {
-                // load all HeadTypeDefs that use FARequiredGenes and group them by gene set
-                foreach (FacialAnimation.HeadTypeDef headDef in DefDatabase<FacialAnimation.HeadTypeDef>.AllDefs)
-                {
-                    FARequiredGenes ext = headDef.GetModExtension<FARequiredGenes>();
-                    if (ext == null || ext.requiredGenes == null)
-                        continue;
+    	public static List<GeneHeadRule> GeneHeadMap;
 
-                    HashSet<GeneDef> geneDefs = new HashSet<GeneDef>();
-                    foreach (string defName in ext.requiredGenes)
-                    {
-                        GeneDef g = DefDatabase<GeneDef>.GetNamedSilentFail(defName);
-                        if (g != null)
-                            geneDefs.Add(g);
-                    }
+    	private static Dictionary<HashSet<GeneDef>, FacialAnimation.HeadTypeDef> headCache;
 
-                    if (geneDefs.Count == 0)
-                        continue;
+    	static GeneHeadResolver()
+    	{
+    		GeneHeadMap = new List<GeneHeadRule>();
+    		headCache = new Dictionary<HashSet<GeneDef>, FacialAnimation.HeadTypeDef>(new GeneSetComparer());
+    		try
+    		{
+    			foreach (FacialAnimation.HeadTypeDef allDef in DefDatabase<FacialAnimation.HeadTypeDef>.AllDefs)
+    			{
+    				FARequiredGenes modExtension = allDef.GetModExtension<FARequiredGenes>();
+    				if (modExtension == null || modExtension.requiredGenes == null)
+    				{
+    					continue;
+    				}
+    				HashSet<GeneDef> hashSet = new HashSet<GeneDef>();
+    				foreach (string requiredGene in modExtension.requiredGenes)
+    				{
+    					GeneDef namedSilentFail = DefDatabase<GeneDef>.GetNamedSilentFail(requiredGene);
+    					if (namedSilentFail != null)
+    					{
+    						hashSet.Add(namedSilentFail);
+    					}
+    				}
+    				if (hashSet.Count == 0)
+    				{
+    					continue;
+    				}
+    				bool flag = false;
+    				foreach (GeneHeadRule item in GeneHeadMap)
+    				{
+    					if (item.requiredGenes.SetEquals(hashSet))
+    					{
+    						item.headDefs.Add(allDef);
+    						flag = true;
+    						break;
+    					}
+    				}
+    				if (!flag)
+    				{
+    					GeneHeadMap.Add(new GeneHeadRule(hashSet, allDef));
+    				}
+    			}
+    			GeneHeadMap.Sort((GeneHeadRule a, GeneHeadRule b) => b.requiredGenes.Count.CompareTo(a.requiredGenes.Count));
+    			Log.Message("[FA Heads] Loaded " + GeneHeadMap.Count + " gene-head definition groups.");
+    		}
+    		catch (Exception ex)
+    		{
+    			Log.Error("[FA Heads] Error loading gene map: " + ex);
+    		}
+    	}
 
-                    // add headDef to an existing rule or create a new rule
-                    bool added = false;
-                    foreach (GeneHeadRule rule in GeneHeadMap)
-                    {
-                        if (rule.requiredGenes.SetEquals(geneDefs))
-                        {
-                            rule.headDefs.Add(headDef);
-                            added = true;
-                            break;
-                        }
-                    }
-
-                    if (!added)
-                        GeneHeadMap.Add(new GeneHeadRule(geneDefs, headDef));
-                }
-
-                // sort rules by specificity (most genes first)
-                GeneHeadMap.Sort((a, b) => b.requiredGenes.Count.CompareTo(a.requiredGenes.Count));
-                Log.Message("[FA Heads] Loaded " + GeneHeadMap.Count + " gene-head definition groups.");
-            }
-            catch (Exception ex)
-            {
-                Log.Error("[FA Heads] Error loading gene map: " + ex);
-            }
-        }
-
-        // find the most appropriate head for a pawn's active genes
-        public static FacialAnimation.HeadTypeDef Match(Pawn pawn)
-        {
-            if (pawn == null || pawn.genes == null) return null;
-
-            HashSet<GeneDef> activeGenes = new HashSet<GeneDef>(
-                pawn.genes.GenesListForReading.Where(g => g.Active).Select(g => g.def));
-
-            // return cached result if available
-            foreach (var entry in headCache.Keys)
-            {
-                if (entry.SetEquals(activeGenes))
-                    return headCache[entry];
-            }
-
-            // try matching rules in order of specificity
-            foreach (GeneHeadRule rule in GeneHeadMap)
-            {
-                if (rule.requiredGenes.IsSubsetOf(activeGenes))
-                {
-                    FacialAnimation.HeadTypeDef head;
-
-                    if (rule.headDefs.Count == 1)
-                    {
-                        // single option: safe to cache by gene set
-                        head = rule.headDefs[0];
-                        headCache[activeGenes] = head;
-                        return head;
-                    }
-
-                    // multiple options: deterministic selection per pawn ID
-                    int idx;
-                    Rand.PushState();
-                    try
-                    {
-                        Rand.Seed = pawn.thingIDNumber; // deterministic per pawn
-                        idx = Rand.Range(0, rule.headDefs.Count);
-                    }
-                    finally
-                    {
-                        Rand.PopState();
-                    }
-
-                    head = rule.headDefs[idx];
-
-                    // do NOT cache multi-option results by gene set, or all pawns would share the first pawn's pick
-                    return head;
-                }
-            }
-
-            headCache[activeGenes] = null;
-            return null;
-        }
-
-        // custom hash comparer for HashSet<GeneDef> to be used as dictionary keys
-        private class GeneSetComparer : IEqualityComparer<HashSet<GeneDef>>
-        {
-            public bool Equals(HashSet<GeneDef> x, HashSet<GeneDef> y)
-            {
-                return x.SetEquals(y);
-            }
-
-            public int GetHashCode(HashSet<GeneDef> obj)
-            {
-                unchecked
-                {
-                    int hash = 17;
-                    foreach (var gene in obj.OrderBy(g => g.shortHash))
-                        hash = hash * 31 + gene.shortHash;
-                    return hash;
-                }
-            }
-        }
+    	public static FacialAnimation.HeadTypeDef Match(Pawn pawn)
+    	{
+    		if (pawn == null || pawn.genes == null)
+    		{
+    			return null;
+    		}
+    		HashSet<GeneDef> hashSet = new HashSet<GeneDef>(from g in pawn.genes.GenesListForReading
+    			where g.Active
+    			select g.def);
+    		foreach (HashSet<GeneDef> key in headCache.Keys)
+    		{
+    			if (key.SetEquals(hashSet))
+    			{
+    				return headCache[key];
+    			}
+    		}
+    		foreach (GeneHeadRule item in GeneHeadMap)
+    		{
+    			if (item.requiredGenes.IsSubsetOf(hashSet))
+    			{
+    				if (item.headDefs.Count == 1)
+    				{
+    					FacialAnimation.HeadTypeDef headTypeDef = item.headDefs[0];
+    					headCache[hashSet] = headTypeDef;
+    					return headTypeDef;
+    				}
+    				Rand.PushState();
+    				int index;
+    				try
+    				{
+    					Rand.Seed = pawn.thingIDNumber;
+    					index = Rand.Range(0, item.headDefs.Count);
+    				}
+    				finally
+    				{
+    					Rand.PopState();
+    				}
+    				return item.headDefs[index];
+    			}
+    		}
+    		headCache[hashSet] = null;
+    		return null;
+    	}
     }
 }
