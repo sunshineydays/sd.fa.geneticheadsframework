@@ -1,4 +1,0 @@
-C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\sd.fa.geneticheadsmodular\Source\obj\x64\Release\FacialAnimationGeneticHeadsModular.csproj.AssemblyReference.cache
-C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\sd.fa.geneticheadsmodular\Source\obj\x64\Release\FacialAnimationGeneticHeadsModular.csproj.CoreCompileInputs.cache
-C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\sd.fa.geneticheadsmodular\Source\obj\x64\Release\FacialAnimationGeneticHeads.dll
-C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\sd.fa.geneticheadsmodular\Common\Assemblies\FacialAnimationGeneticHeads.dll
