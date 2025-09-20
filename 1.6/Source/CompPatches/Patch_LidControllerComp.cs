@@ -23,13 +23,13 @@ namespace FacialAnimationGeneticHeads.CompPatches
                 var fi = AccessTools.Field(__instance.GetType(), "faceType");
                 if (fi == null)
                 {
-                    Log.Warning($"[FA GenePatch] Missing faceType field on {__instance.GetType().FullName}");
+                    Log.Warning($"[FA Genetic Heads] Missing faceType field on {__instance.GetType().FullName}");
                     return true;
                 }
 
-                if (fi.FieldType != typeof(LidTypeDef)) // e.g. EyeballTypeDef
+                if (fi.FieldType != typeof(LidTypeDef))
                 {
-                   //Log.Warning($"[FA GenePatch] faceType field is not of type {typeof(LidTypeDef).Name}");
+                   //Log.Warning($"[FA Genetic Heads] faceType field is not of type {typeof(LidTypeDef).Name}");
                     return true;
                 }
 
@@ -41,15 +41,15 @@ namespace FacialAnimationGeneticHeads.CompPatches
                 {
                     fi.SetValue(__instance, chosen);
                     if (Prefs.DevMode)
-                        Log.Message($"[FA GenePatch] {typeof(LidTypeDef).Name}: assigned {chosen.defName} to {pawn.LabelShortCap}");
+                        Log.Message($"[FA Genetic Heads] {typeof(LidTypeDef).Name}: assigned {chosen.defName} to {pawn.LabelShortCap}");
                 }
 
                 return true;
             }
             catch (Exception ex)
             {
-                Log.Error($"[FA GenePatch] Exception in patch for {__instance.GetType().FullName}: {ex}");
-                return true; // Let vanilla run
+                Log.Error($"[FA Genetic Heads] Exception in patch for {__instance.GetType().FullName}: {ex}");
+                return true; 
             }
         }
     }

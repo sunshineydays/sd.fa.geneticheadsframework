@@ -1,8 +1,5 @@
-﻿// patch: updates face parts (head, eyes, brows, lids, mouth, skin) after gene changes
-// keeps current if still valid and specific, otherwise upgrades or downgrades
-
-using System.Linq;
-using FacialAnimation; // FaceTypeDef & concrete *TypeDef classes
+﻿using System.Linq;
+using FacialAnimation;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -27,7 +24,6 @@ namespace FacialAnimationGeneticHeads
             DoPart<SkinTypeDef>(pawn, "FacialAnimation.SkinControllerComp", "Skin");
         }
 
-        // handles one facial part (like eyes or mouth)
         static void DoPart<TDef>(Pawn pawn, string compTypeName, string logLabel)
             where TDef : FaceTypeDef, new()
         {
@@ -72,16 +68,14 @@ namespace FacialAnimationGeneticHeads
                     else AccessTools.Method(comp.GetType(), "InitializeIfNeed")?.Invoke(comp, null);
 
                     if (Prefs.DevMode)
-                        Log.Message($"[FA GenePatch] {logLabel}: genes changed -> {pawn.LabelShortCap}: {current?.defName ?? "<null>"} → {best.defName}");
+                        Log.Message($"[FA Genetic Heads] {logLabel}: genes changed -> {pawn.LabelShortCap}: {current?.defName ?? "<null>"} → {best.defName}");
                 }
             }
             catch (Exception ex)
             {
-                Log.Warning($"[FA GenePatch] Failed to patch {logLabel} comp on {pawn?.LabelShortCap ?? "null pawn"}: {ex}");
+                Log.Warning($"[FA Genetic Heads] Failed to patch {logLabel} comp on {pawn?.LabelShortCap ?? "null pawn"}: {ex}");
             }
         }
-
-        // === shared helpers ===
 
         // true if def has any targetGeneDefs
         static bool HasRequiredGenes(FaceTypeDef def)

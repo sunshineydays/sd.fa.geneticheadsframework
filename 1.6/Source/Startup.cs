@@ -12,11 +12,11 @@ namespace FacialAnimationGeneticHeads
             try
             {
                 new Harmony("sd.fageneticheads.startup").PatchAll();
-                Log.Message("[FA GenePatch] Harmony patches applied");
+                Log.Message("[FA Genetic Heads] Harmony patches applied");
             }
             catch (Exception ex)
             {
-                Log.Error($"[FA GenePatch] Failed to patch: {ex}");
+                Log.Error($"[FA Genetic Heads] Failed to patch: {ex}");
             }
         }
     }

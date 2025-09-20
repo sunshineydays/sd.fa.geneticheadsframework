@@ -1,6 +1,3 @@
-// helper: finds the best matching FaceTypeDef for a pawn based on active genes
-// used by FA gene patch logic for each facial part
-
 using System;
 using System.Linq;
 using FacialAnimation;
@@ -17,12 +14,12 @@ namespace FacialAnimationGeneticHeads
 
             try
             {
-                // grab all defs that match this pawn's race and genes
+                // grab all defs that match the pawn's race and genes
                 var candidates = FaceTypeGenerator<T>.GetApplicableFaceTypeDefsForRaceConsideringGenes(pawn);
                 if (candidates == null || !candidates.Any())
                     return null;
 
-                // collect active gene defNames for fast matching
+                // collect active gene defNames
                 var genes = pawn.genes?.GenesListForReading?.Select(g => g.def.defName).ToHashSet();
 
                 // filter to defs that require genes and all are present
@@ -53,7 +50,7 @@ namespace FacialAnimationGeneticHeads
                     }
                     catch (Exception ex)
                     {
-                        Log.Warning($"[FA GenePatch] Failed to pick random FaceTypeDef: {ex}");
+                        Log.Warning($"[FA Genetic Heads] Failed to pick random FaceTypeDef: {ex}");
                         return pool.First(); // safe fallback
                     }
                     finally
@@ -67,7 +64,7 @@ namespace FacialAnimationGeneticHeads
             }
             catch (Exception ex)
             {
-                Log.Error($"[FA GenePatch] Exception while getting {typeof(T).Name} for {pawn?.LabelShortCap ?? "null pawn"}: {ex}");
+                Log.Error($"[FA Genetic Heads] Exception while getting {typeof(T).Name} for {pawn?.LabelShortCap ?? "null pawn"}: {ex}");
                 return null;
             }
         }
