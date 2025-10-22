@@ -10,7 +10,7 @@ namespace FacialAnimationGeneticHeads.CompPatches
     public static class Patch_EyeballControllerComp
     {
         static MethodBase TargetMethod() =>
-            AccessTools.Method(AccessTools.TypeByName("FacialAnimation.EyeballControllerComp"), "InitializeIfNeed");
+            AccessTools.Method(AccessTools.TypeByName("FacialAnimation.EyeballControllerComp"), "LoadTextures");
 
         static bool Prefix(object __instance)
         {
