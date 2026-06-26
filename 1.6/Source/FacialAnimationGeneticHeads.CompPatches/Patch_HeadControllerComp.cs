@@ -36,19 +36,7 @@ public static class Patch_HeadControllerComp
 			{
 				return true;
 			}
-			if (fieldInfo.GetValue(__instance) is FacialAnimation.HeadTypeDef)
-			{
-				return true;
-			}
-			FacialAnimation.HeadTypeDef geneMatchedDef = GeneFacePatchHelper.GetGeneMatchedDef<FacialAnimation.HeadTypeDef>(pawn, pawn.gender);
-			if (geneMatchedDef != null)
-			{
-				fieldInfo.SetValue(__instance, geneMatchedDef);
-				if (Prefs.DevMode)
-				{
-					Log.Message("[FA Genetic Heads] " + typeof(FacialAnimation.HeadTypeDef).Name + ": assigned " + geneMatchedDef.defName + " to " + pawn.LabelShortCap);
-				}
-			}
+			FaceSelectionUtility.RefreshCompIfNeeded<FacialAnimation.HeadTypeDef>(__instance, pawn, "Head", "initialized");
 			return true;
 		}
 		catch (Exception arg)

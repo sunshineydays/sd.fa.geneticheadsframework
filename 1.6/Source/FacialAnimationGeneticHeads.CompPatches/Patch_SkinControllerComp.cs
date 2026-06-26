@@ -36,19 +36,7 @@ public static class Patch_SkinControllerComp
 			{
 				return true;
 			}
-			if (fieldInfo.GetValue(__instance) is SkinTypeDef)
-			{
-				return true;
-			}
-			SkinTypeDef geneMatchedDef = GeneFacePatchHelper.GetGeneMatchedDef<SkinTypeDef>(pawn, pawn.gender);
-			if (geneMatchedDef != null)
-			{
-				fieldInfo.SetValue(__instance, geneMatchedDef);
-				if (Prefs.DevMode)
-				{
-					Log.Message("[FA Genetic Heads] " + typeof(SkinTypeDef).Name + ": assigned " + geneMatchedDef.defName + " to " + pawn.LabelShortCap);
-				}
-			}
+			FaceSelectionUtility.RefreshCompIfNeeded<SkinTypeDef>(__instance, pawn, "Skin", "initialized");
 			return true;
 		}
 		catch (Exception arg)

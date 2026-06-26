@@ -36,19 +36,7 @@ public static class Patch_EyeballControllerComp
 			{
 				return true;
 			}
-			if (fieldInfo.GetValue(__instance) is EyeballTypeDef)
-			{
-				return true;
-			}
-			EyeballTypeDef geneMatchedDef = GeneFacePatchHelper.GetGeneMatchedDef<EyeballTypeDef>(pawn, pawn.gender);
-			if (geneMatchedDef != null)
-			{
-				fieldInfo.SetValue(__instance, geneMatchedDef);
-				if (Prefs.DevMode)
-				{
-					Log.Message("[FA Genetic Heads] " + typeof(EyeballTypeDef).Name + ": assigned " + geneMatchedDef.defName + " to " + pawn.LabelShortCap);
-				}
-			}
+			FaceSelectionUtility.RefreshCompIfNeeded<EyeballTypeDef>(__instance, pawn, "Eye", "initialized");
 			return true;
 		}
 		catch (Exception arg)

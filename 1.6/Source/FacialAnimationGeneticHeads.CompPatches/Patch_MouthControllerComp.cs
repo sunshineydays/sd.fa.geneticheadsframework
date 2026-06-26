@@ -36,19 +36,7 @@ public static class Patch_MouthControllerComp
 			{
 				return true;
 			}
-			if (fieldInfo.GetValue(__instance) is MouthTypeDef)
-			{
-				return true;
-			}
-			MouthTypeDef geneMatchedDef = GeneFacePatchHelper.GetGeneMatchedDef<MouthTypeDef>(pawn, pawn.gender);
-			if (geneMatchedDef != null)
-			{
-				fieldInfo.SetValue(__instance, geneMatchedDef);
-				if (Prefs.DevMode)
-				{
-					Log.Message("[FA Genetic Heads] " + typeof(MouthTypeDef).Name + ": assigned " + geneMatchedDef.defName + " to " + pawn.LabelShortCap);
-				}
-			}
+			FaceSelectionUtility.RefreshCompIfNeeded<MouthTypeDef>(__instance, pawn, "Mouth", "initialized");
 			return true;
 		}
 		catch (Exception arg)

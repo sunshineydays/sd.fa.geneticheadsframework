@@ -36,19 +36,7 @@ public static class Patch_BrowControllerComp
 			{
 				return true;
 			}
-			if (fieldInfo.GetValue(__instance) is BrowTypeDef)
-			{
-				return true;
-			}
-			BrowTypeDef geneMatchedDef = GeneFacePatchHelper.GetGeneMatchedDef<BrowTypeDef>(pawn, pawn.gender);
-			if (geneMatchedDef != null)
-			{
-				fieldInfo.SetValue(__instance, geneMatchedDef);
-				if (Prefs.DevMode)
-				{
-					Log.Message("[FA Genetic Heads] " + typeof(BrowTypeDef).Name + ": assigned " + geneMatchedDef.defName + " to " + pawn.LabelShortCap);
-				}
-			}
+			FaceSelectionUtility.RefreshCompIfNeeded<BrowTypeDef>(__instance, pawn, "Brow", "initialized");
 			return true;
 		}
 		catch (Exception arg)

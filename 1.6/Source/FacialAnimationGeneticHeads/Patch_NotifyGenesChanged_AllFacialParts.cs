@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using FacialAnimation;
 using HarmonyLib;
 using RimWorld;
@@ -17,98 +13,22 @@ public static class Patch_NotifyGenesChanged_AllFacialParts
 		Pawn value = Traverse.Create(__instance).Field("pawn").GetValue<Pawn>();
 		if (value != null && value.Spawned)
 		{
-			DoPart<FacialAnimation.HeadTypeDef>(value, "FacialAnimation.HeadControllerComp", "Head");
-			DoPart<EyeballTypeDef>(value, "FacialAnimation.EyeballControllerComp", "Eye");
-			DoPart<BrowTypeDef>(value, "FacialAnimation.BrowControllerComp", "Brow");
-			DoPart<LidTypeDef>(value, "FacialAnimation.LidControllerComp", "Lid");
-			DoPart<MouthTypeDef>(value, "FacialAnimation.MouthControllerComp", "Mouth");
-			DoPart<SkinTypeDef>(value, "FacialAnimation.SkinControllerComp", "Skin");
+			FaceSelectionUtility.InvalidateAllCaches(value);
+			RefreshAllParts(value, "genes changed");
 		}
 	}
 
-	private static void DoPart<TDef>(Pawn pawn, string compTypeName, string logLabel) where TDef : FaceTypeDef, new()
+	public static void RefreshAllParts(Pawn pawn, string reason)
 	{
 		if (pawn == null)
 		{
 			return;
 		}
-		try
-		{
-			ThingComp thingComp = pawn.AllComps?.FirstOrDefault((ThingComp c) => c.GetType().FullName == compTypeName);
-			if (thingComp == null)
-			{
-				return;
-			}
-			FieldInfo fieldInfo = AccessTools.Field(thingComp.GetType(), "faceType");
-			if (fieldInfo == null || fieldInfo.FieldType != typeof(TDef))
-			{
-				return;
-			}
-			TDef val = fieldInfo.GetValue(thingComp) as TDef;
-			TDef geneMatchedDef = GeneFacePatchHelper.GetGeneMatchedDef<TDef>(pawn, pawn.gender);
-			if (geneMatchedDef == null)
-			{
-				return;
-			}
-			bool num = IsValidForGenes(pawn, val);
-			bool num2 = HasRequiredGenes(geneMatchedDef);
-			bool flag = HasRequiredGenes(val);
-			int num3 = RequiredCount(geneMatchedDef);
-			int num4 = RequiredCount(val);
-			bool flag2 = num2 && (!flag || num3 > num4);
-			if ((!num || flag2 || val == null) && val != geneMatchedDef)
-			{
-				fieldInfo.SetValue(thingComp, geneMatchedDef);
-				MethodInfo methodInfo = AccessTools.Method(thingComp.GetType(), "SetDirty");
-				if (methodInfo != null)
-				{
-					methodInfo.Invoke(thingComp, null);
-				}
-				else
-				{
-					AccessTools.Method(thingComp.GetType(), "InitializeIfNeed")?.Invoke(thingComp, null);
-				}
-				if (Prefs.DevMode)
-				{
-					Log.Message("[FA Genetic Heads] " + logLabel + ": genes changed -> " + pawn.LabelShortCap + ": " + (val?.defName ?? "<null>") + " → " + geneMatchedDef.defName);
-				}
-			}
-		}
-		catch (Exception arg)
-		{
-			Log.Warning(string.Format("[FA Genetic Heads] Failed to patch {0} comp on {1}: {2}", logLabel, pawn?.LabelShortCap ?? "null pawn", arg));
-		}
-	}
-
-	private static bool HasRequiredGenes(FaceTypeDef def)
-	{
-		if (def?.targetGeneDefs != null)
-		{
-			return def.targetGeneDefs.Count > 0;
-		}
-		return false;
-	}
-
-	private static int RequiredCount(FaceTypeDef def)
-	{
-		return (def?.targetGeneDefs?.Count).GetValueOrDefault();
-	}
-
-	private static bool IsValidForGenes(Pawn pawn, FaceTypeDef def)
-	{
-		if (def == null)
-		{
-			return false;
-		}
-		if (def.targetGeneDefs == null || def.targetGeneDefs.Count == 0)
-		{
-			return true;
-		}
-		if (pawn.genes == null)
-		{
-			return false;
-		}
-		HashSet<string> hashSet = pawn.genes.GenesListForReading.Select((Gene g) => g.def.defName).ToHashSet();
-		return def.targetGeneDefs.All(hashSet.Contains);
+		FaceSelectionUtility.RefreshPartIfNeeded<FacialAnimation.HeadTypeDef>(pawn, "FacialAnimation.HeadControllerComp", "Head", FacialAnimationGeneticHeadsMod.Settings.HeadCompActive, reason);
+		FaceSelectionUtility.RefreshPartIfNeeded<EyeballTypeDef>(pawn, "FacialAnimation.EyeballControllerComp", "Eye", FacialAnimationGeneticHeadsMod.Settings.EyeballCompActive, reason);
+		FaceSelectionUtility.RefreshPartIfNeeded<BrowTypeDef>(pawn, "FacialAnimation.BrowControllerComp", "Brow", FacialAnimationGeneticHeadsMod.Settings.BrowCompActive, reason);
+		FaceSelectionUtility.RefreshPartIfNeeded<LidTypeDef>(pawn, "FacialAnimation.LidControllerComp", "Lid", FacialAnimationGeneticHeadsMod.Settings.LidCompActive, reason);
+		FaceSelectionUtility.RefreshPartIfNeeded<MouthTypeDef>(pawn, "FacialAnimation.MouthControllerComp", "Mouth", FacialAnimationGeneticHeadsMod.Settings.MouthCompActive, reason);
+		FaceSelectionUtility.RefreshPartIfNeeded<SkinTypeDef>(pawn, "FacialAnimation.SkinControllerComp", "Skin", FacialAnimationGeneticHeadsMod.Settings.SkinCompActive, reason);
 	}
 }

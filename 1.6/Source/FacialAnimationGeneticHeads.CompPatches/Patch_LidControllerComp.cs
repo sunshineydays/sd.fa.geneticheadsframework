@@ -36,19 +36,7 @@ public static class Patch_LidControllerComp
 			{
 				return true;
 			}
-			if (fieldInfo.GetValue(__instance) is LidTypeDef)
-			{
-				return true;
-			}
-			LidTypeDef geneMatchedDef = GeneFacePatchHelper.GetGeneMatchedDef<LidTypeDef>(pawn, pawn.gender);
-			if (geneMatchedDef != null)
-			{
-				fieldInfo.SetValue(__instance, geneMatchedDef);
-				if (Prefs.DevMode)
-				{
-					Log.Message("[FA Genetic Heads] " + typeof(LidTypeDef).Name + ": assigned " + geneMatchedDef.defName + " to " + pawn.LabelShortCap);
-				}
-			}
+			FaceSelectionUtility.RefreshCompIfNeeded<LidTypeDef>(__instance, pawn, "Lid", "initialized");
 			return true;
 		}
 		catch (Exception arg)

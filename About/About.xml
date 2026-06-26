@@ -1,7 +1,7 @@
 <ModMetaData>
-	<name>Genetic Heads Framework for [NL] Facial Animation</name>
+	<name>HEDIFF Genetic Heads Framework for [NL] Facial Animation</name>
 	<author>SunshineyDays</author>
-	<packageId>sd.fa.geneticheadsframework</packageId>
+	<packageId>sd.fa.geneticheadsframeworkHEDIFF</packageId>
 	<modVersion>2.0</modVersion>
 
 	<supportedVersions>
