@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FacialAnimation;
+using RimWorld;
 using Verse;
 
 namespace FacialAnimationGeneticHeads;
@@ -34,7 +35,7 @@ public static class FaceConditionResolver
 				return null;
 			}
 			HashSet<string> pawnHediffs = GetPawnHediffNames(pawn);
-			string creepjoinerForm = pawn.creepjoiner?.form?.defName;
+			string creepjoinerForm = GetPawnCreepjoinerFormName(pawn);
 			if (pawnHediffs.Count == 0 && string.IsNullOrEmpty(creepjoinerForm))
 			{
 				CachedMatches<T>.Misses.Add(cacheKey);
@@ -100,7 +101,7 @@ public static class FaceConditionResolver
 		{
 			return false;
 		}
-		return IsValidForPawn(pawn, pawn.gender, def, GetPawnHediffNames(pawn), pawn.creepjoiner?.form?.defName, GetPawnGeneNames(pawn));
+		return IsValidForPawn(pawn, pawn.gender, def, GetPawnHediffNames(pawn), GetPawnCreepjoinerFormName(pawn), GetPawnGeneNames(pawn));
 	}
 
 	private static bool IsValidForPawn(Pawn pawn, Gender gender, FaceTypeDef def, HashSet<string> pawnHediffs, string creepjoinerForm, HashSet<string> pawnGenes)
@@ -145,6 +146,24 @@ public static class FaceConditionResolver
 			return 1;
 		}
 		return 0;
+	}
+
+	private static string GetPawnCreepjoinerFormName(Pawn pawn)
+	{
+		if (pawn == null)
+		{
+			return null;
+		}
+		string trackerForm = pawn.creepjoiner?.form?.defName;
+		if (!string.IsNullOrEmpty(trackerForm))
+		{
+			return trackerForm;
+		}
+		if (pawn.kindDef is CreepJoinerFormKindDef formKind)
+		{
+			return formKind.defName;
+		}
+		return null;
 	}
 
 	private static HashSet<string> GetPawnHediffNames(Pawn pawn)
