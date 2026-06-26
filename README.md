@@ -15,7 +15,6 @@ In 1.5, this mod connects genes to FA parts. If you have the textures with the r
 
 **Known Issues**
 - Weird behavior with HAR
-- Default FA right eye color not working. Not something I know how to fix, sorry. Using EyeGenes2 bypasses the problem
 
 Check out my [Biotech Head Pack](https://steamcommunity.com/sharedfiles/filedetails/?id=3501317537) for vanilla Biotech heads edited to work with Facial Animation. Pairs very nicely with [Vanilla Textures Expanded](https://steamcommunity.com/sharedfiles/filedetails/?id=2816938779).
 
