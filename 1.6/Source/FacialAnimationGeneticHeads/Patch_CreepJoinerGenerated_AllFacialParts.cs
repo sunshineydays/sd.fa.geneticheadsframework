@@ -37,6 +37,7 @@ public static class Patch_CreepJoinerGenerated_AllFacialParts
 			}
 			FaceSelectionUtility.InvalidateAllCaches(__result);
 			Patch_NotifyGenesChanged_AllFacialParts.RefreshAllParts(__result, "creepjoiner generated");
+			FaceSelectionUtility.EnsureAllPartsHaveFaceTypes(__result, "creepjoiner generated fallback");
 		}
 		catch (Exception arg)
 		{

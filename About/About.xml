@@ -1,7 +1,7 @@
 <ModMetaData>
-	<name>HEDIFF Genetic Heads Framework for [NL] Facial Animation</name>
+	<name>DEV Genetic Heads Framework for [NL] Facial Animation</name>
 	<author>SunshineyDays</author>
-	<packageId>sd.fa.geneticheadsframeworkHEDIFF</packageId>
+	<packageId>sd.fa.geneticheadsframework.dev</packageId>
 	<modVersion>2.0</modVersion>
 
 	<supportedVersions>
@@ -33,7 +33,7 @@ With the new gene-specific FA head sorting limiting choices in the FA part selec
 			<li>ludeon.rimworld.biotech</li>
 			<li>nals.facialanimation</li>
 			<li>hawkwood.facialanimationsxenotypecompatibility</li>
-	<!-- 	<li>sarg.alphagenes</li>
+		 	<li>sarg.alphagenes</li>
 			<li>vanillaracesexpanded.saurid</li>
 			<li>vanillaracesexpanded.android</li>
 			<li>vanillaracesexpanded.genie</li>
@@ -43,7 +43,7 @@ With the new gene-specific FA head sorting limiting choices in the FA part selec
 			<li>erin.corvyia</li>
 			<li>erin.fenrisulfr</li>
 			<li>erin.shisune</li>
-			<li>rooboid.faun</li> -->
+			<li>rooboid.faun</li> 
 		</v1.6>
 	</loadAfterByVersion>
 

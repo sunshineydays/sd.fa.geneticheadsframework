@@ -10,7 +10,7 @@
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
-    <BaseOutputPath>..\1.6\Assemblies</BaseOutputPath>
+    <BaseOutputPath>..\Assemblies</BaseOutputPath>
   </PropertyGroup>
   <ItemGroup />
   <ItemGroup>

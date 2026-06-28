@@ -27,6 +27,68 @@ public static class FaceSelectionUtility
 		FaceConditionResolver.InvalidatePawn(pawn);
 	}
 
+	public static void EnsureAllPartsHaveFaceTypes(Pawn pawn, string reason)
+	{
+		EnsurePartHasFaceType<FacialAnimation.HeadTypeDef>(pawn, "FacialAnimation.HeadControllerComp", "Head", reason);
+		EnsurePartHasFaceType<EyeballTypeDef>(pawn, "FacialAnimation.EyeballControllerComp", "Eye", reason);
+		EnsurePartHasFaceType<BrowTypeDef>(pawn, "FacialAnimation.BrowControllerComp", "Brow", reason);
+		EnsurePartHasFaceType<LidTypeDef>(pawn, "FacialAnimation.LidControllerComp", "Lid", reason);
+		EnsurePartHasFaceType<MouthTypeDef>(pawn, "FacialAnimation.MouthControllerComp", "Mouth", reason);
+		EnsurePartHasFaceType<SkinTypeDef>(pawn, "FacialAnimation.SkinControllerComp", "Skin", reason);
+	}
+
+	public static void EnsurePartHasFaceType<T>(Pawn pawn, string compTypeName, string logLabel, string reason) where T : FaceTypeDef, new()
+	{
+		if (pawn == null)
+		{
+			return;
+		}
+		ThingComp comp = pawn.AllComps?.FirstOrDefault((ThingComp c) => c.GetType().FullName == compTypeName);
+		if (comp == null)
+		{
+			return;
+		}
+		EnsureCompHasFaceType<T>(comp, pawn, logLabel, reason);
+	}
+
+	public static void EnsureCompHasFaceType<T>(object comp, Pawn pawn, string logLabel, string reason) where T : FaceTypeDef, new()
+	{
+		if (comp == null || pawn == null)
+		{
+			return;
+		}
+		Type compType = comp.GetType();
+		FieldInfo fieldInfo = GetFaceTypeField(compType);
+		if (fieldInfo == null || fieldInfo.FieldType != typeof(T))
+		{
+			return;
+		}
+		T current = fieldInfo.GetValue(comp) as T;
+		if (current != null)
+		{
+			return;
+		}
+		T matched = GeneFacePatchHelper.GetMatchedDef<T>(pawn, pawn.gender);
+		if (matched == null)
+		{
+			return;
+		}
+		fieldInfo.SetValue(comp, matched);
+		MethodInfo methodInfo = GetSetDirtyMethod(compType);
+		if (methodInfo != null)
+		{
+			methodInfo.Invoke(comp, null);
+		}
+		else
+		{
+			GetInitializeMethod(compType)?.Invoke(comp, null);
+		}
+		if (Prefs.DevMode)
+		{
+			Log.Message("[FA Genetic Heads] " + logLabel + ": " + reason + " -> " + pawn.LabelShortCap + ": <null> -> " + matched.defName);
+		}
+	}
+
 	public static void RefreshPartIfNeeded<T>(Pawn pawn, string compTypeName, string logLabel, bool active, string reason) where T : FaceTypeDef, new()
 	{
 		if (pawn == null || !active)

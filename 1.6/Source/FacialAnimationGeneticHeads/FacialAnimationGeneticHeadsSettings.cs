@@ -6,7 +6,7 @@ public class FacialAnimationGeneticHeadsSettings : ModSettings
 {
 	public bool BrowCompActive = true;
 
-	public bool EyeballCompActive;
+	public bool EyeballCompActive = true;
 
 	public bool HeadCompActive = true;
 
