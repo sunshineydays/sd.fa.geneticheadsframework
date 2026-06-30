@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using FacialAnimation;
 using HarmonyLib;
+using RimWorld;
 using Verse;
 
 namespace FacialAnimationGeneticHeads;
@@ -87,6 +88,7 @@ public static class FaceSelectionUtility
 		{
 			Log.Message("[FA Genetic Heads] " + logLabel + ": " + reason + " -> " + pawn.LabelShortCap + ": <null> -> " + matched.defName);
 		}
+		MarkPawnGraphicsDirty(pawn, reason);
 	}
 
 	public static void RefreshPartIfNeeded<T>(Pawn pawn, string compTypeName, string logLabel, bool active, string reason) where T : FaceTypeDef, new()
@@ -134,6 +136,28 @@ public static class FaceSelectionUtility
 		if (Prefs.DevMode)
 		{
 			Log.Message("[FA Genetic Heads] " + logLabel + ": " + reason + " -> " + pawn.LabelShortCap + ": " + (current?.defName ?? "<null>") + " -> " + matched.defName);
+		}
+		MarkPawnGraphicsDirty(pawn, reason);
+	}
+
+	private static void MarkPawnGraphicsDirty(Pawn pawn, string reason)
+	{
+		if (pawn == null)
+		{
+			return;
+		}
+		try
+		{
+			if (reason != "initialized")
+			{
+				pawn.Drawer?.renderer?.renderTree?.SetDirty();
+			}
+			PortraitsCache.SetDirty(pawn);
+			GlobalTextureAtlasManager.TryMarkPawnFrameSetDirty(pawn);
+		}
+		catch (Exception arg)
+		{
+			Log.Warning($"[FA Genetic Heads] Failed to mark graphics dirty for {pawn.LabelShortCap}: {arg}");
 		}
 	}
 

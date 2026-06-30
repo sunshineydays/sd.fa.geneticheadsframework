@@ -17,6 +17,14 @@ public static class FaceConditionResolver
 			.Concat(GetRequiredHediffNames<MouthTypeDef>())
 			.Concat(GetRequiredHediffNames<SkinTypeDef>()));
 
+	private static readonly HashSet<string> RequiredTraitNames = new HashSet<string>(
+		GetRequiredTraitNames<FacialAnimation.HeadTypeDef>()
+			.Concat(GetRequiredTraitNames<EyeballTypeDef>())
+			.Concat(GetRequiredTraitNames<BrowTypeDef>())
+			.Concat(GetRequiredTraitNames<LidTypeDef>())
+			.Concat(GetRequiredTraitNames<MouthTypeDef>())
+			.Concat(GetRequiredTraitNames<SkinTypeDef>()));
+
 	public static T Match<T>(Pawn pawn, Gender gender) where T : FaceTypeDef, new()
 	{
 		if (pawn == null)
@@ -36,14 +44,15 @@ public static class FaceConditionResolver
 			}
 			HashSet<string> pawnHediffs = GetPawnHediffNames(pawn);
 			string creepjoinerForm = GetPawnCreepjoinerFormName(pawn);
-			if (pawnHediffs.Count == 0 && string.IsNullOrEmpty(creepjoinerForm))
+			HashSet<string> pawnTraits = GetPawnTraitNames(pawn);
+			if (pawnHediffs.Count == 0 && string.IsNullOrEmpty(creepjoinerForm) && pawnTraits.Count == 0)
 			{
 				CachedMatches<T>.Misses.Add(cacheKey);
 				return null;
 			}
 			HashSet<string> pawnGenes = GetPawnGeneNames(pawn);
 			List<T> candidates = CachedMatches<T>.ConditionalDefs
-				.Where((T def) => IsValidForPawn(pawn, gender, def, pawnHediffs, creepjoinerForm, pawnGenes))
+				.Where((T def) => IsValidForPawn(pawn, gender, def, pawnHediffs, creepjoinerForm, pawnTraits, pawnGenes))
 				.ToList();
 			if (candidates.Count == 0)
 			{
@@ -80,6 +89,11 @@ public static class FaceConditionResolver
 		return hediffDef != null && RequiredHediffNames.Contains(hediffDef.defName);
 	}
 
+	public static bool UsesTrait(TraitDef traitDef)
+	{
+		return traitDef != null && RequiredTraitNames.Contains(traitDef.defName);
+	}
+
 	public static bool HasRequiredConditions(FaceTypeDef def)
 	{
 		return RequiredConditionCount(def) > 0;
@@ -87,12 +101,17 @@ public static class FaceConditionResolver
 
 	public static int RequiredConditionCount(FaceTypeDef def)
 	{
-		return RequiredHediffCount(def) + RequiredCreepjoinerFormCount(def);
+		return RequiredHediffCount(def) + RequiredCreepjoinerFormCount(def) + RequiredTraitCount(def);
 	}
 
 	public static int RequiredHediffCount(FaceTypeDef def)
 	{
 		return def?.GetModExtension<FARequiredHediffs>()?.requiredHediffs?.Count ?? 0;
+	}
+
+	public static int RequiredTraitCount(FaceTypeDef def)
+	{
+		return def?.GetModExtension<FARequiredTraits>()?.requiredTraits?.Count ?? 0;
 	}
 
 	public static bool IsValidForPawn(Pawn pawn, FaceTypeDef def)
@@ -101,10 +120,10 @@ public static class FaceConditionResolver
 		{
 			return false;
 		}
-		return IsValidForPawn(pawn, pawn.gender, def, GetPawnHediffNames(pawn), GetPawnCreepjoinerFormName(pawn), GetPawnGeneNames(pawn));
+		return IsValidForPawn(pawn, pawn.gender, def, GetPawnHediffNames(pawn), GetPawnCreepjoinerFormName(pawn), GetPawnTraitNames(pawn), GetPawnGeneNames(pawn));
 	}
 
-	private static bool IsValidForPawn(Pawn pawn, Gender gender, FaceTypeDef def, HashSet<string> pawnHediffs, string creepjoinerForm, HashSet<string> pawnGenes)
+	private static bool IsValidForPawn(Pawn pawn, Gender gender, FaceTypeDef def, HashSet<string> pawnHediffs, string creepjoinerForm, HashSet<string> pawnTraits, HashSet<string> pawnGenes)
 	{
 		if (pawn == null || def == null || !HasRequiredConditions(def))
 		{
@@ -130,6 +149,11 @@ public static class FaceConditionResolver
 			{
 				return false;
 			}
+		}
+		FARequiredTraits traitExtension = def.GetModExtension<FARequiredTraits>();
+		if (traitExtension?.requiredTraits != null && traitExtension.requiredTraits.Count > 0 && !traitExtension.requiredTraits.All(pawnTraits.Contains))
+		{
+			return false;
 		}
 		if (def.targetGeneDefs != null && def.targetGeneDefs.Count > 0)
 		{
@@ -177,6 +201,13 @@ public static class FaceConditionResolver
 			.Select((Hediff hediff) => hediff.def.defName));
 	}
 
+	private static HashSet<string> GetPawnTraitNames(Pawn pawn)
+	{
+		return new HashSet<string>(pawn?.story?.traits?.allTraits?
+			.Where((Trait trait) => trait?.def != null)
+			.Select((Trait trait) => trait.def.defName) ?? Enumerable.Empty<string>());
+	}
+
 	private static HashSet<string> GetPawnGeneNames(Pawn pawn)
 	{
 		return new HashSet<string>(pawn?.genes?.GenesListForReading?
@@ -215,6 +246,12 @@ public static class FaceConditionResolver
 	{
 		return CachedMatches<T>.ConditionalDefs
 			.SelectMany((T def) => def.GetModExtension<FARequiredHediffs>()?.requiredHediffs ?? Enumerable.Empty<string>());
+	}
+
+	private static IEnumerable<string> GetRequiredTraitNames<T>() where T : FaceTypeDef, new()
+	{
+		return CachedMatches<T>.ConditionalDefs
+			.SelectMany((T def) => def.GetModExtension<FARequiredTraits>()?.requiredTraits ?? Enumerable.Empty<string>());
 	}
 
 	private static class CachedMatches<T> where T : FaceTypeDef, new()
