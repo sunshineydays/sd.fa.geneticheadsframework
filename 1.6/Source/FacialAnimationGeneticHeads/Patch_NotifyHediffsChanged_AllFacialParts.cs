@@ -20,13 +20,26 @@ public static class Patch_NotifyHediffsChanged_AllFacialParts
 	{
 		try
 		{
-			if (!AffectsConditionalFaceType(__args))
+			bool affectsFaceType = AffectsConditionalFaceType(__args);
+			bool affectsEyeColor = AffectsEyeballColor(__args);
+			if (!affectsFaceType && !affectsEyeColor)
 			{
 				return;
 			}
 			Pawn pawn = Traverse.Create(__instance).Field("pawn").GetValue<Pawn>();
-			FaceSelectionUtility.InvalidateConditionCaches(pawn);
-			Patch_NotifyGenesChanged_AllFacialParts.RefreshAllParts(pawn, "hediffs changed");
+			if (pawn == null)
+			{
+				return;
+			}
+			if (affectsFaceType)
+			{
+				FaceSelectionUtility.InvalidateConditionCaches(pawn);
+				Patch_NotifyGenesChanged_AllFacialParts.RefreshAllParts(pawn, "hediffs changed");
+			}
+			if (affectsEyeColor)
+			{
+				FaceSelectionUtility.MarkPartDirty(pawn, "FacialAnimation.EyeballControllerComp", "Eye", "hediff eye color changed");
+			}
 		}
 		catch (Exception arg)
 		{
@@ -49,6 +62,26 @@ public static class Patch_NotifyHediffsChanged_AllFacialParts
 			if (arg is HediffDef hediffDef)
 			{
 				return FaceConditionResolver.UsesHediff(hediffDef);
+			}
+		}
+		return false;
+	}
+
+	private static bool AffectsEyeballColor(object[] args)
+	{
+		if (args == null)
+		{
+			return true;
+		}
+		foreach (object arg in args)
+		{
+			if (arg is Hediff hediff)
+			{
+				return EyeballColorOverrideUtility.UsesHediff(hediff.def);
+			}
+			if (arg is HediffDef hediffDef)
+			{
+				return EyeballColorOverrideUtility.UsesHediff(hediffDef);
 			}
 		}
 		return false;

@@ -140,6 +140,30 @@ public static class FaceSelectionUtility
 		MarkPawnGraphicsDirty(pawn, reason);
 	}
 
+	public static void MarkPartDirty(Pawn pawn, string compTypeName, string logLabel, string reason)
+	{
+		if (pawn == null)
+		{
+			return;
+		}
+		ThingComp comp = pawn.AllComps?.FirstOrDefault((ThingComp c) => c.GetType().FullName == compTypeName);
+		if (comp == null)
+		{
+			return;
+		}
+		MethodInfo methodInfo = GetSetDirtyMethod(comp.GetType());
+		if (methodInfo == null)
+		{
+			return;
+		}
+		methodInfo.Invoke(comp, null);
+		if (Prefs.DevMode)
+		{
+			Log.Message("[FA Genetic Heads] " + logLabel + ": " + reason + " -> " + pawn.LabelShortCap + ": marked dirty");
+		}
+		MarkPawnGraphicsDirty(pawn, reason);
+	}
+
 	private static void MarkPawnGraphicsDirty(Pawn pawn, string reason)
 	{
 		if (pawn == null)

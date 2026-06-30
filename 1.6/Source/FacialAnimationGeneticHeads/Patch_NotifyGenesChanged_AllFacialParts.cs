@@ -15,6 +15,10 @@ public static class Patch_NotifyGenesChanged_AllFacialParts
 		{
 			FaceSelectionUtility.InvalidateAllCaches(value);
 			RefreshAllParts(value, "genes changed");
+			if (EyeballColorOverrideUtility.HasGeneColorDefs())
+			{
+				FaceSelectionUtility.MarkPartDirty(value, "FacialAnimation.EyeballControllerComp", "Eye", "gene eye color changed");
+			}
 		}
 	}
 

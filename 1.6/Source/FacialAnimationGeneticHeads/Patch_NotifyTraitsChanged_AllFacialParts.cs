@@ -21,7 +21,9 @@ public static class Patch_NotifyTraitsChanged_AllFacialParts
 	{
 		try
 		{
-			if (!AffectsConditionalFaceType(__args))
+			bool affectsFaceType = AffectsConditionalFaceType(__args);
+			bool affectsEyeColor = AffectsEyeballColor(__args);
+			if (!affectsFaceType && !affectsEyeColor)
 			{
 				return;
 			}
@@ -30,8 +32,15 @@ public static class Patch_NotifyTraitsChanged_AllFacialParts
 			{
 				return;
 			}
-			FaceSelectionUtility.InvalidateConditionCaches(pawn);
-			Patch_NotifyGenesChanged_AllFacialParts.RefreshAllParts(pawn, "traits changed");
+			if (affectsFaceType)
+			{
+				FaceSelectionUtility.InvalidateConditionCaches(pawn);
+				Patch_NotifyGenesChanged_AllFacialParts.RefreshAllParts(pawn, "traits changed");
+			}
+			if (affectsEyeColor)
+			{
+				FaceSelectionUtility.MarkPartDirty(pawn, "FacialAnimation.EyeballControllerComp", "Eye", "trait eye color changed");
+			}
 		}
 		catch (Exception arg)
 		{
@@ -54,6 +63,26 @@ public static class Patch_NotifyTraitsChanged_AllFacialParts
 			if (arg is TraitDef traitDef)
 			{
 				return FaceConditionResolver.UsesTrait(traitDef);
+			}
+		}
+		return false;
+	}
+
+	private static bool AffectsEyeballColor(object[] args)
+	{
+		if (args == null)
+		{
+			return true;
+		}
+		foreach (object arg in args)
+		{
+			if (arg is Trait trait)
+			{
+				return EyeballColorOverrideUtility.UsesTrait(trait.def);
+			}
+			if (arg is TraitDef traitDef)
+			{
+				return EyeballColorOverrideUtility.UsesTrait(traitDef);
 			}
 		}
 		return false;
