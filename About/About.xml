@@ -1,7 +1,7 @@
 <ModMetaData>
-	<name>DEV Genetic Heads Framework for [NL] Facial Animation</name>
+	<name>DEV BUILD Genetic Heads Framework for [NL] Facial Animation</name>
 	<author>SunshineyDays</author>
-	<packageId>sd.fa.geneticheadsframework.dev</packageId>
+	<packageId>sd.fa.geneticheadsframework.devbuild</packageId>
 	<modVersion>2.0</modVersion>
 
 	<supportedVersions>

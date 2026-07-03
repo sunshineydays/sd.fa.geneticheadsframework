@@ -16,13 +16,6 @@ public static class EyeballColorOverrideUtility
 		AccessTools.Field(typeof(EyeballControllerComp), "graphicList") ??
 		AccessTools.Field(typeof(ControllerBaseComp<EyeballTypeDef, EyeballShapeDef>), "graphicList");
 
-	private static readonly Dictionary<int, EyeColorPair> LastResolvedColors = new Dictionary<int, EyeColorPair>();
-
-	public static bool HasGeneColorDefs()
-	{
-		return GetColorDefs().Any((EyeballColorDef def) => def != null && !def.geneDef.NullOrEmpty());
-	}
-
 	public static bool UsesHediff(HediffDef hediffDef)
 	{
 		string defName = hediffDef?.defName;
@@ -40,8 +33,7 @@ public static class EyeballColorOverrideUtility
 			{
 				return true;
 			}
-			FARequiredHediffs modExtension = colorDef.GetModExtension<FARequiredHediffs>();
-			if (modExtension?.requiredHediffs != null && modExtension.requiredHediffs.Contains(defName))
+			if (CanAffectColor(colorDef) && RequiredHediffs(colorDef).Contains(defName))
 			{
 				return true;
 			}
@@ -58,8 +50,7 @@ public static class EyeballColorOverrideUtility
 		}
 		foreach (EyeballColorDef colorDef in GetColorDefs())
 		{
-			FARequiredTraits modExtension = colorDef?.GetModExtension<FARequiredTraits>();
-			if (modExtension?.requiredTraits != null && modExtension.requiredTraits.Contains(defName))
+			if (colorDef != null && CanAffectColor(colorDef) && RequiredTraits(colorDef).Contains(defName))
 			{
 				return true;
 			}
@@ -113,22 +104,6 @@ public static class EyeballColorOverrideUtility
 		return true;
 	}
 
-	public static bool CheckLoadTextures(EyeballControllerComp comp)
-	{
-		if (!TryResolveEyeColors(comp, out Pawn pawn, out BodyPartRecord _, out BodyPartRecord _, out Color rightEyeColor, out Color leftEyeColor))
-		{
-			return false;
-		}
-		int cacheKey = CacheKey(pawn);
-		EyeColorPair current = new EyeColorPair(rightEyeColor, leftEyeColor);
-		if (LastResolvedColors.TryGetValue(cacheKey, out EyeColorPair previous) && previous.Equals(current))
-		{
-			return false;
-		}
-		LastResolvedColors[cacheKey] = current;
-		return true;
-	}
-
 	private static bool TryResolveEyeColors(EyeballControllerComp comp, out Pawn pawn, out BodyPartRecord rightEyePart, out BodyPartRecord leftEyePart, out Color rightEyeColor, out Color leftEyeColor)
 	{
 		pawn = comp?.parent as Pawn;
@@ -142,8 +117,7 @@ public static class EyeballColorOverrideUtility
 		}
 		rightEyePart = FindEyePart(pawn, GraphicHelper.GetRightEyeLabel(pawn.def?.defName));
 		leftEyePart = FindEyePart(pawn, GraphicHelper.GetLeftEyeLabel(pawn.def?.defName));
-		ResolveEyeColors(pawn, rightEyePart, leftEyePart, comp.GetCurrentColor(), comp.FaceSecondColor, out rightEyeColor, out leftEyeColor);
-		return true;
+		return ResolveEyeColors(pawn, rightEyePart, leftEyePart, comp.GetCurrentColor(), comp.FaceSecondColor, out rightEyeColor, out leftEyeColor);
 	}
 
 	private static IEnumerable<EyeballColorDef> GetColorDefs()
@@ -169,143 +143,137 @@ public static class EyeballColorOverrideUtility
 		return Math.Min(1f, PawnCapacityUtility.CalculatePartEfficiency(pawn.health.hediffSet, part));
 	}
 
-	private static void ResolveEyeColors(Pawn pawn, BodyPartRecord rightEyePart, BodyPartRecord leftEyePart, Color defaultRightEyeColor, Color defaultLeftEyeColor, out Color rightEyeColor, out Color leftEyeColor)
+	private static bool ResolveEyeColors(Pawn pawn, BodyPartRecord rightEyePart, BodyPartRecord leftEyePart, Color defaultRightEyeColor, Color defaultLeftEyeColor, out Color rightEyeColor, out Color leftEyeColor)
 	{
 		rightEyeColor = defaultRightEyeColor;
 		leftEyeColor = defaultLeftEyeColor;
-		HashSet<string> activeGenes = new HashSet<string>(pawn?.genes?.GenesListForReading?
-			.Where((Gene gene) => gene?.Active == true && gene.def != null)
-			.Select((Gene gene) => gene.def.defName) ?? Enumerable.Empty<string>());
-		HashSet<string> activeHediffs = new HashSet<string>(pawn?.health?.hediffSet?.hediffs?
+
+		bool usedFrameworkRequirements = false;
+		if (ModsConfig.BiotechActive && pawn?.genes != null)
+		{
+			foreach (GeneDef eyeGeneDef in pawn.genes.GenesListForReading
+				.Where((Gene gene) => gene?.Active == true)
+				.Select((Gene gene) => gene.def))
+			{
+				foreach (EyeballColorDef colorDef in GetColorDefs()
+					.Where((EyeballColorDef def) => def?.geneDef == eyeGeneDef?.defName))
+				{
+					if (!FrameworkRequirementsAllow(colorDef, pawn, ref usedFrameworkRequirements))
+					{
+						continue;
+					}
+					rightEyeColor = colorDef.eyeballColor;
+					leftEyeColor = colorDef.eyeballColor;
+				}
+			}
+		}
+
+		foreach (EyeballColorDef colorDef in GetColorDefs()
+			.Where((EyeballColorDef def) => def?.hediffDef != null))
+		{
+			List<Hediff> matchingHediffs = pawn?.health?.hediffSet?.hediffs?
+				.Where((Hediff hediff) => hediff?.def == colorDef.hediffDef)
+				.ToList();
+			if (matchingHediffs == null || matchingHediffs.Count == 0)
+			{
+				continue;
+			}
+			if (!FrameworkRequirementsAllow(colorDef, pawn, ref usedFrameworkRequirements))
+			{
+				continue;
+			}
+			foreach (Hediff hediff in matchingHediffs)
+			{
+				if (hediff.Part == null)
+				{
+					rightEyeColor = colorDef.eyeballColor;
+					leftEyeColor = colorDef.eyeballColor;
+					usedFrameworkRequirements = true;
+					continue;
+				}
+				if (rightEyePart != null && hediff.Part == rightEyePart)
+				{
+					rightEyeColor = colorDef.eyeballColor;
+					continue;
+				}
+				if (leftEyePart != null && hediff.Part == leftEyePart)
+				{
+					leftEyeColor = colorDef.eyeballColor;
+					continue;
+				}
+				rightEyeColor = colorDef.eyeballColor;
+				leftEyeColor = colorDef.eyeballColor;
+				usedFrameworkRequirements = true;
+			}
+		}
+
+		foreach (EyeballColorDef colorDef in GetColorDefs()
+			.Where((EyeballColorDef def) => def != null && def.geneDef.NullOrEmpty() && def.hediffDef == null && HasFrameworkRequirements(def)))
+		{
+			if (!FrameworkRequirementsAllow(colorDef, pawn, ref usedFrameworkRequirements))
+			{
+				continue;
+			}
+			rightEyeColor = colorDef.eyeballColor;
+			leftEyeColor = colorDef.eyeballColor;
+		}
+		return usedFrameworkRequirements;
+	}
+
+	private static bool CanAffectColor(EyeballColorDef colorDef)
+	{
+		return colorDef != null && (!colorDef.geneDef.NullOrEmpty() || colorDef.hediffDef != null || HasFrameworkRequirements(colorDef));
+	}
+
+	private static bool FrameworkRequirementsAllow(EyeballColorDef colorDef, Pawn pawn, ref bool usedFrameworkRequirements)
+	{
+		if (!HasFrameworkRequirements(colorDef))
+		{
+			return true;
+		}
+		usedFrameworkRequirements = true;
+		return PawnHasRequiredHediffs(pawn, colorDef) && PawnHasRequiredTraits(pawn, colorDef);
+	}
+
+	private static bool HasFrameworkRequirements(EyeballColorDef colorDef)
+	{
+		return RequiredHediffs(colorDef).Any() || RequiredTraits(colorDef).Any();
+	}
+
+	private static bool PawnHasRequiredHediffs(Pawn pawn, EyeballColorDef colorDef)
+	{
+		List<string> requiredHediffs = RequiredHediffs(colorDef);
+		if (requiredHediffs.Count == 0)
+		{
+			return true;
+		}
+		HashSet<string> pawnHediffs = new HashSet<string>(pawn?.health?.hediffSet?.hediffs?
 			.Where((Hediff hediff) => hediff?.def != null)
 			.Select((Hediff hediff) => hediff.def.defName) ?? Enumerable.Empty<string>());
-		HashSet<string> activeTraits = new HashSet<string>(pawn?.story?.traits?.allTraits?
+		return requiredHediffs.All(pawnHediffs.Contains);
+	}
+
+	private static bool PawnHasRequiredTraits(Pawn pawn, EyeballColorDef colorDef)
+	{
+		List<string> requiredTraits = RequiredTraits(colorDef);
+		if (requiredTraits.Count == 0)
+		{
+			return true;
+		}
+		HashSet<string> pawnTraits = new HashSet<string>(pawn?.story?.traits?.allTraits?
 			.Where((Trait trait) => trait?.def != null)
 			.Select((Trait trait) => trait.def.defName) ?? Enumerable.Empty<string>());
-		foreach (EyeballColorDef colorDef in GetColorDefs())
-		{
-			if (colorDef == null || HasConditionalRequirements(colorDef) || !MatchesGeneRequirement(colorDef, activeGenes))
-			{
-				continue;
-			}
-			rightEyeColor = colorDef.eyeballColor;
-			leftEyeColor = colorDef.eyeballColor;
-		}
-		foreach (EyeballColorDef colorDef2 in GetColorDefs())
-		{
-			if (colorDef2 == null || !HasConditionalRequirements(colorDef2) || !MatchesAllRequirements(colorDef2, pawn, activeGenes, activeHediffs, activeTraits))
-			{
-				continue;
-			}
-			ApplyConditionalColor(colorDef2, pawn, rightEyePart, leftEyePart, ref rightEyeColor, ref leftEyeColor);
-		}
+		return requiredTraits.All(pawnTraits.Contains);
 	}
 
-	private static bool HasConditionalRequirements(EyeballColorDef colorDef)
+	private static List<string> RequiredHediffs(EyeballColorDef colorDef)
 	{
-		if (colorDef?.hediffDef != null)
-		{
-			return true;
-		}
-		if (colorDef?.GetModExtension<FARequiredHediffs>()?.requiredHediffs?.Count > 0)
-		{
-			return true;
-		}
-		return colorDef?.GetModExtension<FARequiredTraits>()?.requiredTraits?.Count > 0;
+		return colorDef?.GetModExtension<FARequiredHediffs>()?.requiredHediffs ?? new List<string>();
 	}
 
-	private static bool MatchesAllRequirements(EyeballColorDef colorDef, Pawn pawn, HashSet<string> activeGenes, HashSet<string> activeHediffs, HashSet<string> activeTraits)
+	private static List<string> RequiredTraits(EyeballColorDef colorDef)
 	{
-		if (pawn == null)
-		{
-			return false;
-		}
-		if (!MatchesGeneRequirement(colorDef, activeGenes))
-		{
-			return false;
-		}
-		if (colorDef?.hediffDef != null && !activeHediffs.Contains(colorDef.hediffDef.defName))
-		{
-			return false;
-		}
-		FARequiredHediffs hediffExtension = colorDef?.GetModExtension<FARequiredHediffs>();
-		if (hediffExtension?.requiredHediffs != null && hediffExtension.requiredHediffs.Count > 0 && !hediffExtension.requiredHediffs.All(activeHediffs.Contains))
-		{
-			return false;
-		}
-		FARequiredTraits traitExtension = colorDef?.GetModExtension<FARequiredTraits>();
-		if (traitExtension?.requiredTraits != null && traitExtension.requiredTraits.Count > 0 && !traitExtension.requiredTraits.All(activeTraits.Contains))
-		{
-			return false;
-		}
-		return true;
-	}
-
-	private static bool MatchesGeneRequirement(EyeballColorDef colorDef, HashSet<string> activeGenes)
-	{
-		if (colorDef == null || colorDef.geneDef.NullOrEmpty())
-		{
-			return true;
-		}
-		return activeGenes.Contains(colorDef.geneDef);
-	}
-
-	private static void ApplyConditionalColor(EyeballColorDef colorDef, Pawn pawn, BodyPartRecord rightEyePart, BodyPartRecord leftEyePart, ref Color rightEyeColor, ref Color leftEyeColor)
-	{
-		if (colorDef == null)
-		{
-			return;
-		}
-		if (colorDef.hediffDef == null)
-		{
-			rightEyeColor = colorDef.eyeballColor;
-			leftEyeColor = colorDef.eyeballColor;
-			return;
-		}
-		List<Hediff> matchingHediffs = pawn?.health?.hediffSet?.hediffs?
-			.Where((Hediff hediff) => hediff?.def == colorDef.hediffDef)
-			.ToList();
-		if (matchingHediffs == null || matchingHediffs.Count == 0)
-		{
-			return;
-		}
-		bool applyToBothEyes = rightEyePart == null || leftEyePart == null;
-		bool applyToRightEye = false;
-		bool applyToLeftEye = false;
-		foreach (Hediff hediff2 in matchingHediffs)
-		{
-			if (hediff2?.Part == null)
-			{
-				applyToBothEyes = true;
-				break;
-			}
-			if (hediff2.Part == rightEyePart)
-			{
-				applyToRightEye = true;
-				continue;
-			}
-			if (hediff2.Part == leftEyePart)
-			{
-				applyToLeftEye = true;
-				continue;
-			}
-			applyToBothEyes = true;
-			break;
-		}
-		if (applyToBothEyes)
-		{
-			rightEyeColor = colorDef.eyeballColor;
-			leftEyeColor = colorDef.eyeballColor;
-			return;
-		}
-		if (applyToRightEye)
-		{
-			rightEyeColor = colorDef.eyeballColor;
-		}
-		if (applyToLeftEye)
-		{
-			leftEyeColor = colorDef.eyeballColor;
-		}
+		return colorDef?.GetModExtension<FARequiredTraits>()?.requiredTraits ?? new List<string>();
 	}
 
 	private static Color CvtMainColor(Color baseColor, float efficiency)
@@ -327,26 +295,4 @@ public static class EyeballColorOverrideUtility
 		return Color.Lerp(Color.clear, Color.white, efficiency);
 	}
 
-	private static int CacheKey(Pawn pawn)
-	{
-		return pawn?.thingIDNumber ?? 0;
-	}
-
-	private readonly struct EyeColorPair
-	{
-		private readonly Color right;
-
-		private readonly Color left;
-
-		public EyeColorPair(Color right, Color left)
-		{
-			this.right = right;
-			this.left = left;
-		}
-
-		public bool Equals(EyeColorPair other)
-		{
-			return right == other.right && left == other.left;
-		}
-	}
 }
