@@ -21,19 +21,3 @@ public static class Patch_EyeballControllerComp_LoadTextures
 		}
 	}
 }
-
-[HarmonyPatch(typeof(EyeballControllerComp), nameof(EyeballControllerComp.CheckLoadTextures))]
-public static class Patch_EyeballControllerComp_CheckLoadTextures
-{
-	private static void Postfix(EyeballControllerComp __instance, ref bool __result)
-	{
-		try
-		{
-			__result |= EyeballColorOverrideUtility.CheckLoadTextures(__instance);
-		}
-		catch (Exception arg)
-		{
-			Log.Warning($"[FA Genetic Heads] Failed to check eyeball color refresh for {__instance?.parent?.LabelShortCap ?? "unknown pawn"}: {arg}");
-		}
-	}
-}
