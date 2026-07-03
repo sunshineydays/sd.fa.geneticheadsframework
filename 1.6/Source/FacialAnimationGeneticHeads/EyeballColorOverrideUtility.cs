@@ -184,22 +184,45 @@ public static class EyeballColorOverrideUtility
 			}
 			foreach (Hediff hediff in matchingHediffs)
 			{
-				if (hediff.Part == rightEyePart)
+				if (hediff.Part == null)
 				{
 					rightEyeColor = colorDef.eyeballColor;
+					leftEyeColor = colorDef.eyeballColor;
+					usedFrameworkRequirements = true;
+					continue;
 				}
-				if (hediff.Part == leftEyePart)
+				if (rightEyePart != null && hediff.Part == rightEyePart)
+				{
+					rightEyeColor = colorDef.eyeballColor;
+					continue;
+				}
+				if (leftEyePart != null && hediff.Part == leftEyePart)
 				{
 					leftEyeColor = colorDef.eyeballColor;
+					continue;
 				}
+				rightEyeColor = colorDef.eyeballColor;
+				leftEyeColor = colorDef.eyeballColor;
+				usedFrameworkRequirements = true;
 			}
+		}
+
+		foreach (EyeballColorDef colorDef in GetColorDefs()
+			.Where((EyeballColorDef def) => def != null && def.geneDef.NullOrEmpty() && def.hediffDef == null && HasFrameworkRequirements(def)))
+		{
+			if (!FrameworkRequirementsAllow(colorDef, pawn, ref usedFrameworkRequirements))
+			{
+				continue;
+			}
+			rightEyeColor = colorDef.eyeballColor;
+			leftEyeColor = colorDef.eyeballColor;
 		}
 		return usedFrameworkRequirements;
 	}
 
 	private static bool CanAffectColor(EyeballColorDef colorDef)
 	{
-		return colorDef != null && (!colorDef.geneDef.NullOrEmpty() || colorDef.hediffDef != null);
+		return colorDef != null && (!colorDef.geneDef.NullOrEmpty() || colorDef.hediffDef != null || HasFrameworkRequirements(colorDef));
 	}
 
 	private static bool FrameworkRequirementsAllow(EyeballColorDef colorDef, Pawn pawn, ref bool usedFrameworkRequirements)

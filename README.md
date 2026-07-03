@@ -14,7 +14,7 @@ Despite the name, which I won't be changing because that was enough of a disaste
   - `FacialAnimationGeneticHeads.FARequiredCreepjoinerForms`
 - Refreshes affected facial parts when genes, hediffs, or traits change
 - Refreshes creepjoiner pawns after generation so form-specific parts can apply immediately
-- Supports FA-style eyeball color defs (`geneDef`/`hediffDef`) with optional hediff and trait requirements
+- Supports FA-style eyeball color defs plus condition-only eye color overrides for hediffs and traits
 - Includes mod settings so each facial component patch can be enabled or disabled separately
 
 ## How Matching Works
@@ -68,8 +68,7 @@ Use Facial Animation's `targetGeneDefs` for one or more gene requirements, then 
   </FacialAnimation.BrowTypeDef>
 
   <FacialAnimation.EyeballColorDef>
-    <defName>ColorBodyMasteryBlueEyes</defName>
-    <geneDef>BlueEyes</geneDef>
+    <defName>ColorBodyMastery</defName>
     <modExtensions>
       <li Class="FacialAnimationGeneticHeads.FARequiredTraits">
         <requiredTraits>
@@ -97,7 +96,7 @@ Use Facial Animation's `targetGeneDefs` for one or more gene requirements, then 
 
 ```
 
-Eyeball color defs still follow Facial Animation's native triggers: use `geneDef` to tint both eyes for an active gene, or `hediffDef` to tint the affected eye. This framework's `FARequiredHediffs` and `FARequiredTraits` extensions only add extra requirements to those native FA triggers.
+Eyeball color defs keep Facial Animation's native behavior for `geneDef` and eye-linked `hediffDef` entries. This framework also lets `FARequiredHediffs` or `FARequiredTraits` tint both eyes when used by themselves, and treats non-eye-linked matching hediffs as a both-eye color change.
 
 The same pattern works for all Type Defs!
 
