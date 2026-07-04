@@ -123,6 +123,24 @@ public static class FaceConditionResolver
 		return IsValidForPawn(pawn, pawn.gender, def, GetPawnHediffNames(pawn), GetPawnCreepjoinerFormName(pawn), GetPawnTraitNames(pawn), GetPawnGeneNames(pawn));
 	}
 
+	public static IEnumerable<T> FilterSelectable<T>(Pawn pawn, IEnumerable<T> defs) where T : FaceTypeDef
+	{
+		return defs?.Where((T def) => IsSelectable(pawn, def)) ?? Enumerable.Empty<T>();
+	}
+
+	public static bool IsSelectable(Pawn pawn, FaceTypeDef def)
+	{
+		if (def == null)
+		{
+			return false;
+		}
+		if (!HasRequiredConditions(def))
+		{
+			return true;
+		}
+		return IsValidForPawn(pawn, def);
+	}
+
 	private static bool IsValidForPawn(Pawn pawn, Gender gender, FaceTypeDef def, HashSet<string> pawnHediffs, string creepjoinerForm, HashSet<string> pawnTraits, HashSet<string> pawnGenes)
 	{
 		if (pawn == null || def == null || !HasRequiredConditions(def))

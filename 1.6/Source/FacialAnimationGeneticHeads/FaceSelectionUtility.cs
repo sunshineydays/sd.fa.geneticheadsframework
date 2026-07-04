@@ -17,6 +17,14 @@ public static class FaceSelectionUtility
 
 	private static readonly Dictionary<Type, MethodInfo> InitializeMethods = new Dictionary<Type, MethodInfo>();
 
+	private static readonly Dictionary<Type, FieldInfo> PawnFields = new Dictionary<Type, FieldInfo>();
+
+	private static readonly Dictionary<Type, FieldInfo> ColorFields = new Dictionary<Type, FieldInfo>();
+
+	private static readonly Dictionary<Type, FieldInfo> SecondColorFields = new Dictionary<Type, FieldInfo>();
+
+	private static readonly Dictionary<Type, MethodInfo> ResetColorMethods = new Dictionary<Type, MethodInfo>();
+
 	public static void InvalidateAllCaches(Pawn pawn)
 	{
 		FaceConditionResolver.InvalidatePawn(pawn);
@@ -74,7 +82,7 @@ public static class FaceSelectionUtility
 		{
 			return;
 		}
-		fieldInfo.SetValue(comp, matched);
+		SetFaceTypeAndResetSavedColors(comp, pawn, fieldInfo, matched);
 		MethodInfo methodInfo = GetSetDirtyMethod(compType);
 		if (methodInfo != null)
 		{
@@ -123,7 +131,7 @@ public static class FaceSelectionUtility
 		{
 			return;
 		}
-		fieldInfo.SetValue(comp, matched);
+		SetFaceTypeAndResetSavedColors(comp, pawn, fieldInfo, matched);
 		MethodInfo methodInfo = GetSetDirtyMethod(compType);
 		if (methodInfo != null)
 		{
@@ -208,6 +216,65 @@ public static class FaceSelectionUtility
 		return !currentValidForGenes || matchedIsMoreSpecific;
 	}
 
+	private static void SetFaceTypeAndResetSavedColors<T>(object comp, Pawn pawn, FieldInfo faceTypeField, T matched) where T : FaceTypeDef, new()
+	{
+		faceTypeField.SetValue(comp, matched);
+		ResetSavedColors(comp, pawn);
+	}
+
+	private static void ResetSavedColors(object comp, Pawn pawn)
+	{
+		if (comp == null)
+		{
+			return;
+		}
+		FieldInfo pawnField = null;
+		bool restorePawnField = false;
+		try
+		{
+			Type compType = comp.GetType();
+			pawnField = GetPawnField(compType);
+			if (pawnField != null && pawnField.GetValue(comp) == null && pawn != null)
+			{
+				pawnField.SetValue(comp, pawn);
+				restorePawnField = true;
+			}
+			MethodInfo resetColorMethod = GetResetColorMethod(compType);
+			FieldInfo colorField = GetColorField(compType);
+			if (resetColorMethod == null || colorField == null)
+			{
+				return;
+			}
+			object color = resetColorMethod.Invoke(comp, null);
+			colorField.SetValue(comp, color);
+			FieldInfo secondColorField = GetSecondColorField(compType);
+			if (secondColorField != null)
+			{
+				object secondColor = FacialAnimationMod.Settings.OddEyeProbability > Rand.Range(0, 100)
+					? resetColorMethod.Invoke(comp, null)
+					: color;
+				secondColorField.SetValue(comp, secondColor);
+			}
+		}
+		catch (Exception arg)
+		{
+			Log.Warning($"[FA Genetic Heads] Failed to reset saved colors after faceType swap on {comp.GetType().FullName}: {arg}");
+		}
+		finally
+		{
+			if (restorePawnField)
+			{
+				try
+				{
+					pawnField?.SetValue(comp, null);
+				}
+				catch
+				{
+				}
+			}
+		}
+	}
+
 	private static FieldInfo GetFaceTypeField(Type compType)
 	{
 		if (!FaceTypeFields.TryGetValue(compType, out FieldInfo fieldInfo))
@@ -234,6 +301,46 @@ public static class FaceSelectionUtility
 		{
 			methodInfo = AccessTools.Method(compType, "InitializeIfNeed");
 			InitializeMethods[compType] = methodInfo;
+		}
+		return methodInfo;
+	}
+
+	private static FieldInfo GetPawnField(Type compType)
+	{
+		if (!PawnFields.TryGetValue(compType, out FieldInfo fieldInfo))
+		{
+			fieldInfo = AccessTools.Field(compType, "pawn");
+			PawnFields[compType] = fieldInfo;
+		}
+		return fieldInfo;
+	}
+
+	private static FieldInfo GetColorField(Type compType)
+	{
+		if (!ColorFields.TryGetValue(compType, out FieldInfo fieldInfo))
+		{
+			fieldInfo = AccessTools.Field(compType, "color");
+			ColorFields[compType] = fieldInfo;
+		}
+		return fieldInfo;
+	}
+
+	private static FieldInfo GetSecondColorField(Type compType)
+	{
+		if (!SecondColorFields.TryGetValue(compType, out FieldInfo fieldInfo))
+		{
+			fieldInfo = AccessTools.Field(compType, "secondColor");
+			SecondColorFields[compType] = fieldInfo;
+		}
+		return fieldInfo;
+	}
+
+	private static MethodInfo GetResetColorMethod(Type compType)
+	{
+		if (!ResetColorMethods.TryGetValue(compType, out MethodInfo methodInfo))
+		{
+			methodInfo = AccessTools.Method(compType, "ResetColor");
+			ResetColorMethods[compType] = methodInfo;
 		}
 		return methodInfo;
 	}

@@ -61,8 +61,10 @@ public static class GeneFacePatchHelper
 		}
 		try
 		{
-			IEnumerable<T> applicableFaceTypeDefsForRaceConsideringGenes = FaceTypeGenerator<T>.GetApplicableFaceTypeDefsForRaceConsideringGenes(pawn);
-			if (applicableFaceTypeDefsForRaceConsideringGenes == null || !applicableFaceTypeDefsForRaceConsideringGenes.Any())
+			List<T> applicableFaceTypeDefsForRaceConsideringGenes = FaceConditionResolver
+				.FilterSelectable(pawn, FaceTypeGenerator<T>.GetApplicableFaceTypeDefsForRaceConsideringGenes(pawn))
+				.ToList();
+			if (applicableFaceTypeDefsForRaceConsideringGenes.Count == 0)
 			{
 				return null;
 			}
