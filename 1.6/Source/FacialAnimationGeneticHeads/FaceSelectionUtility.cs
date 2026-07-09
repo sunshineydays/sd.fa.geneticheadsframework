@@ -172,6 +172,38 @@ public static class FaceSelectionUtility
 		MarkPawnGraphicsDirty(pawn, reason);
 	}
 
+	public static void MarkAllPartsDirty(Pawn pawn, string reason)
+	{
+		if (pawn == null)
+		{
+			return;
+		}
+		if (FacialAnimationGeneticHeadsMod.Settings.HeadCompActive)
+		{
+			MarkPartDirty(pawn, "FacialAnimation.HeadControllerComp", "Head", reason);
+		}
+		if (FacialAnimationGeneticHeadsMod.Settings.EyeballCompActive)
+		{
+			MarkPartDirty(pawn, "FacialAnimation.EyeballControllerComp", "Eye", reason);
+		}
+		if (FacialAnimationGeneticHeadsMod.Settings.BrowCompActive)
+		{
+			MarkPartDirty(pawn, "FacialAnimation.BrowControllerComp", "Brow", reason);
+		}
+		if (FacialAnimationGeneticHeadsMod.Settings.LidCompActive)
+		{
+			MarkPartDirty(pawn, "FacialAnimation.LidControllerComp", "Lid", reason);
+		}
+		if (FacialAnimationGeneticHeadsMod.Settings.MouthCompActive)
+		{
+			MarkPartDirty(pawn, "FacialAnimation.MouthControllerComp", "Mouth", reason);
+		}
+		if (FacialAnimationGeneticHeadsMod.Settings.SkinCompActive)
+		{
+			MarkPartDirty(pawn, "FacialAnimation.SkinControllerComp", "Skin", reason);
+		}
+	}
+
 	private static void MarkPawnGraphicsDirty(Pawn pawn, string reason)
 	{
 		if (pawn == null)

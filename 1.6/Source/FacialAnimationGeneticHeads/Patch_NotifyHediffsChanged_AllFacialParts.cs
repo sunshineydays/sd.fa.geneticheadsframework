@@ -22,7 +22,8 @@ public static class Patch_NotifyHediffsChanged_AllFacialParts
 		{
 			bool affectsFaceType = AffectsConditionalFaceType(__args);
 			bool affectsEyeColor = AffectsEyeballColor(__args);
-			if (!affectsFaceType && !affectsEyeColor)
+			bool affectsSkinShader = AffectsSkinShader(__args);
+			if (!affectsFaceType && !affectsEyeColor && !affectsSkinShader)
 			{
 				return;
 			}
@@ -39,6 +40,10 @@ public static class Patch_NotifyHediffsChanged_AllFacialParts
 			if (affectsEyeColor)
 			{
 				FaceSelectionUtility.MarkPartDirty(pawn, "FacialAnimation.EyeballControllerComp", "Eye", "hediff eye color changed");
+			}
+			if (affectsSkinShader)
+			{
+				FaceSelectionUtility.MarkAllPartsDirty(pawn, "hediff skin shader changed");
 			}
 		}
 		catch (Exception arg)
@@ -82,6 +87,26 @@ public static class Patch_NotifyHediffsChanged_AllFacialParts
 			if (arg is HediffDef hediffDef)
 			{
 				return EyeballColorOverrideUtility.UsesHediff(hediffDef);
+			}
+		}
+		return false;
+	}
+
+	private static bool AffectsSkinShader(object[] args)
+	{
+		if (args == null)
+		{
+			return true;
+		}
+		foreach (object arg in args)
+		{
+			if (arg is Hediff hediff)
+			{
+				return hediff.def?.skinShader != null;
+			}
+			if (arg is HediffDef hediffDef)
+			{
+				return hediffDef.skinShader != null;
 			}
 		}
 		return false;
