@@ -149,24 +149,6 @@ public static class EyeballColorOverrideUtility
 		leftEyeColor = defaultLeftEyeColor;
 
 		bool usedFrameworkRequirements = false;
-		if (ModsConfig.BiotechActive && pawn?.genes != null)
-		{
-			foreach (GeneDef eyeGeneDef in pawn.genes.GenesListForReading
-				.Where((Gene gene) => gene?.Active == true)
-				.Select((Gene gene) => gene.def))
-			{
-				foreach (EyeballColorDef colorDef in GetColorDefs()
-					.Where((EyeballColorDef def) => def?.geneDef == eyeGeneDef?.defName))
-				{
-					if (!FrameworkRequirementsAllow(colorDef, pawn, ref usedFrameworkRequirements))
-					{
-						continue;
-					}
-					rightEyeColor = colorDef.eyeballColor;
-					leftEyeColor = colorDef.eyeballColor;
-				}
-			}
-		}
 
 		foreach (EyeballColorDef colorDef in GetColorDefs()
 			.Where((EyeballColorDef def) => def?.hediffDef != null))
@@ -222,7 +204,7 @@ public static class EyeballColorOverrideUtility
 
 	private static bool CanAffectColor(EyeballColorDef colorDef)
 	{
-		return colorDef != null && (!colorDef.geneDef.NullOrEmpty() || colorDef.hediffDef != null || HasFrameworkRequirements(colorDef));
+		return colorDef != null && (colorDef.hediffDef != null || HasFrameworkRequirements(colorDef));
 	}
 
 	private static bool FrameworkRequirementsAllow(EyeballColorDef colorDef, Pawn pawn, ref bool usedFrameworkRequirements)
