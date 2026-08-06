@@ -276,6 +276,7 @@ public static class FaceConditionResolver
 	{
 		public static readonly List<T> ConditionalDefs = DefDatabase<T>.AllDefs
 			.Where(HasRequiredConditions)
+			.Where((T def) => typeof(T) != typeof(EyeballTypeDef) || def.targetGeneDefs.NullOrEmpty())
 			.ToList();
 
 		public static readonly Dictionary<int, T> Matches = new Dictionary<int, T>();

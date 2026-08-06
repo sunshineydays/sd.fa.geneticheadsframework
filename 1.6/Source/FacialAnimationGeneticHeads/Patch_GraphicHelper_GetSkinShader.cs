@@ -15,7 +15,11 @@ public static class Patch_GraphicHelper_GetSkinShader
 	{
 		try
 		{
-			if (pawn == null || def == null || pawn.Drawer?.renderer?.StatueColor.HasValue == true || !UsesStandardSkinShader(def))
+			if (pawn == null ||
+				def == null ||
+				pawn.Drawer?.renderer?.StatueColor.HasValue == true ||
+				Patch_LidControllerComp_LoadTextures_SkinShaderContext.IsLoadingCover(def) ||
+				!UsesStandardSkinShader(def))
 			{
 				return;
 			}
@@ -54,5 +58,30 @@ public static class Patch_GraphicHelper_GetSkinShader
 		}
 		shaderPath = null;
 		return false;
+	}
+}
+
+[HarmonyPatch(typeof(LidControllerComp), nameof(LidControllerComp.LoadTextures))]
+public static class Patch_LidControllerComp_LoadTextures_SkinShaderContext
+{
+	[ThreadStatic]
+	private static int loadDepth;
+
+	private static void Prefix()
+	{
+		loadDepth++;
+	}
+
+	private static void Finalizer()
+	{
+		if (loadDepth > 0)
+		{
+			loadDepth--;
+		}
+	}
+
+	public static bool IsLoadingCover(FaceTypeDef def)
+	{
+		return loadDepth > 0 && def is FacialAnimation.HeadTypeDef;
 	}
 }

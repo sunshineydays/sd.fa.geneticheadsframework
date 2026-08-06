@@ -12,9 +12,8 @@ public static class Patch_HediffSetAddDirect_AllFacialParts
 		try
 		{
 			bool affectsFaceType = FaceConditionResolver.UsesHediff(hediff?.def);
-			bool affectsEyeColor = EyeballColorOverrideUtility.UsesHediff(hediff?.def);
 			bool affectsSkinShader = hediff?.def?.skinShader != null;
-			if (!affectsFaceType && !affectsEyeColor && !affectsSkinShader)
+			if (!affectsFaceType && !affectsSkinShader)
 			{
 				return;
 			}
@@ -27,10 +26,6 @@ public static class Patch_HediffSetAddDirect_AllFacialParts
 			{
 				FaceSelectionUtility.InvalidateConditionCaches(pawn);
 				Patch_NotifyGenesChanged_AllFacialParts.RefreshAllParts(pawn, "hediff added");
-			}
-			if (affectsEyeColor)
-			{
-				FaceSelectionUtility.MarkPartDirty(pawn, "FacialAnimation.EyeballControllerComp", "Eye", "hediff eye color changed");
 			}
 			if (affectsSkinShader)
 			{

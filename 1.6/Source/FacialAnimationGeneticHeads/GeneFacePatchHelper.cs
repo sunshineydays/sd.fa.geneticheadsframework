@@ -10,7 +10,12 @@ public static class GeneFacePatchHelper
 {
 	public static T GetMatchedDef<T>(Pawn pawn, Gender gender) where T : FaceTypeDef, new()
 	{
-		return FaceConditionResolver.Match<T>(pawn, gender) ?? GetGeneMatchedDef<T>(pawn, gender);
+		T conditionalMatch = FaceConditionResolver.Match<T>(pawn, gender);
+		if (conditionalMatch != null || typeof(T) == typeof(EyeballTypeDef))
+		{
+			return conditionalMatch;
+		}
+		return GetGeneMatchedDef<T>(pawn, gender);
 	}
 
 	public static FacialAnimation.HeadTypeDef GetHeadMatchedDef(Pawn pawn, Gender gender)
@@ -20,7 +25,7 @@ public static class GeneFacePatchHelper
 
 	public static T GetGeneMatchedDef<T>(Pawn pawn, Gender gender) where T : FaceTypeDef, new()
 	{
-		if (pawn == null)
+		if (pawn == null || typeof(T) == typeof(EyeballTypeDef))
 		{
 			return null;
 		}
@@ -46,7 +51,6 @@ public static class GeneFacePatchHelper
 	public static void InvalidatePawn(Pawn pawn)
 	{
 		GeneMatches<FacialAnimation.HeadTypeDef>.Invalidate(pawn);
-		GeneMatches<EyeballTypeDef>.Invalidate(pawn);
 		GeneMatches<BrowTypeDef>.Invalidate(pawn);
 		GeneMatches<LidTypeDef>.Invalidate(pawn);
 		GeneMatches<MouthTypeDef>.Invalidate(pawn);

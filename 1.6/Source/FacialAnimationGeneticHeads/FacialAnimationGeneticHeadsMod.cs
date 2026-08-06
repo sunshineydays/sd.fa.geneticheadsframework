@@ -25,7 +25,7 @@ public class FacialAnimationGeneticHeadsMod : Mod
 		listing_Standard.Label("Enable individual facial render components:");
 		listing_Standard.GapLine();
 		listing_Standard.CheckboxLabeled("Enable Brow Patch", ref Settings.BrowCompActive);
-		listing_Standard.CheckboxLabeled("Enable Eyeball Patch (disable for eye color problems)", ref Settings.EyeballCompActive);
+		listing_Standard.CheckboxLabeled("Enable Eyeball Conditional Patch", ref Settings.EyeballCompActive);
 		listing_Standard.CheckboxLabeled("Enable Head Patch", ref Settings.HeadCompActive);
 		listing_Standard.CheckboxLabeled("Enable Lid Patch", ref Settings.LidCompActive);
 		listing_Standard.CheckboxLabeled("Enable Mouth Patch", ref Settings.MouthCompActive);

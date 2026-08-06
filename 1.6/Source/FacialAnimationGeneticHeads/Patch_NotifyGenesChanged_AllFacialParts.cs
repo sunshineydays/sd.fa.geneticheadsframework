@@ -14,7 +14,7 @@ public static class Patch_NotifyGenesChanged_AllFacialParts
 		if (value != null && value.Spawned)
 		{
 			FaceSelectionUtility.InvalidateAllCaches(value);
-			RefreshAllParts(value, "genes changed");
+			RefreshGeneDrivenParts(value, "genes changed");
 		}
 	}
 
@@ -24,8 +24,13 @@ public static class Patch_NotifyGenesChanged_AllFacialParts
 		{
 			return;
 		}
-		FaceSelectionUtility.RefreshPartIfNeeded<FacialAnimation.HeadTypeDef>(pawn, "FacialAnimation.HeadControllerComp", "Head", FacialAnimationGeneticHeadsMod.Settings.HeadCompActive, reason);
+		RefreshGeneDrivenParts(pawn, reason);
 		FaceSelectionUtility.RefreshPartIfNeeded<EyeballTypeDef>(pawn, "FacialAnimation.EyeballControllerComp", "Eye", FacialAnimationGeneticHeadsMod.Settings.EyeballCompActive, reason);
+	}
+
+	private static void RefreshGeneDrivenParts(Pawn pawn, string reason)
+	{
+		FaceSelectionUtility.RefreshPartIfNeeded<FacialAnimation.HeadTypeDef>(pawn, "FacialAnimation.HeadControllerComp", "Head", FacialAnimationGeneticHeadsMod.Settings.HeadCompActive, reason);
 		FaceSelectionUtility.RefreshPartIfNeeded<BrowTypeDef>(pawn, "FacialAnimation.BrowControllerComp", "Brow", FacialAnimationGeneticHeadsMod.Settings.BrowCompActive, reason);
 		FaceSelectionUtility.RefreshPartIfNeeded<LidTypeDef>(pawn, "FacialAnimation.LidControllerComp", "Lid", FacialAnimationGeneticHeadsMod.Settings.LidCompActive, reason);
 		FaceSelectionUtility.RefreshPartIfNeeded<MouthTypeDef>(pawn, "FacialAnimation.MouthControllerComp", "Mouth", FacialAnimationGeneticHeadsMod.Settings.MouthCompActive, reason);

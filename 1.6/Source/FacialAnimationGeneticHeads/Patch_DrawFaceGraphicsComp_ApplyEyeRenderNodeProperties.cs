@@ -116,7 +116,7 @@ public static class Patch_DrawFaceGraphicsComp_ApplyEyeRenderNodeProperties
 			rotateIndependently = source.rotateIndependently,
 			subworkerClasses = source.subworkerClasses,
 			overrideMeshSize = source.overrideMeshSize,
-			maleForwardOffset = eyeSource?.maleForwardOffset ?? 0.017f
+			maleForwardOffset = eyeSource?.maleForwardOffset ?? 0f
 		};
 		FAEyeRenderNode replacement = new FAEyeRenderNode(original.tree.pawn, properties, original.tree)
 		{

@@ -10,6 +10,8 @@ public class FAEyeRenderNodeExtension : DefModExtension
 {
 	public List<PawnRenderNodeProperties> renderNodeProperties;
 
+	public bool randomizeMatchingEyeColors;
+
 	public override void ResolveReferences(Def parentDef)
 	{
 		base.ResolveReferences(parentDef);
@@ -26,7 +28,7 @@ public class FAEyeRenderNodeExtension : DefModExtension
 
 public class FAEyeRenderNodeProperties : PawnRenderNodeProperties_Eye
 {
-	public float maleForwardOffset = 0.017f;
+	public float maleForwardOffset;
 
 	public FAEyeRenderNodeProperties()
 	{
@@ -88,7 +90,8 @@ public class FAEyeRenderNodeWorker : NLFacialAnimationPartNodeWorker
 	{
 		parms.facing = ((NLFacialAnimationPartNode)node).overrideHeadRot;
 		Vector3 result = base.OffsetFor(node, parms, out pivot);
-		if (parms.pawn.gender == Gender.Male
+		if (!UsesUnisexCoordinates(node)
+			&& parms.pawn.gender == Gender.Male
 			&& parms.facing.IsHorizontal
 			&& node.Props is FAEyeRenderNodeProperties properties)
 		{
@@ -97,10 +100,23 @@ public class FAEyeRenderNodeWorker : NLFacialAnimationPartNodeWorker
 		}
 		if (TryGetEyeAnchor(node.Props.anchorTag, parms, out BodyTypeDef.WoundAnchor anchor))
 		{
+			// This also resolves HeadTypeDef.eyeOffsetEastWest and allows
+			// head-specific CalcAnchorData patches (such as SWX's south offsets)
+			// to adjust the same anchor used by vanilla eye render nodes.
 			PawnDrawUtility.CalcAnchorData(parms.pawn, anchor, parms.facing, out Vector3 anchorOffset, out _);
 			result += anchorOffset;
 		}
 		return result;
+	}
+
+	private static bool UsesUnisexCoordinates(PawnRenderNode node)
+	{
+		return ((NLFacialAnimationPartNode)node).controller switch
+		{
+			EyeballControllerComp eyeballs => eyeballs.FaceType?.enableUnisexTexPath == true,
+			LidControllerComp lids => lids.FaceType?.enableUnisexTexPath == true,
+			_ => false
+		};
 	}
 
 	public override Vector3 ScaleFor(PawnRenderNode node, PawnDrawParms parms)
