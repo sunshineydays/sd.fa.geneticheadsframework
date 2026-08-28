@@ -9,6 +9,11 @@
 		<li>1.6</li>
 	</supportedVersions>
 
+	<incompatibleWith>
+		<li>sd.fa.geneticheadsframework.dev</li>
+		<li>sd.fa.geneticheadsframework.devbuild</li>
+	</incompatibleWith>
+
 	<descriptionsByVersion>
 		<v1.5>Core framework for assigning [NL] Facial Animation WIP based on Biotech-type genes. Intended as a dependency for head packs. Supports multi-gene logic, modular head packs, and fallback handling.
 
