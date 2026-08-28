@@ -1,8 +1,8 @@
 <ModMetaData>
-	<name>DEV BUILD Genetic Heads Framework for [NL] Facial Animation</name>
+	<name>Genetic Heads Framework for [NL] Facial Animation</name>
 	<author>SunshineyDays</author>
-	<packageId>sd.fa.geneticheadsframework.devbuild</packageId>
-	<modVersion>2.0</modVersion>
+	<packageId>sd.fa.geneticheadsframework</packageId>
+	<modVersion>2.1</modVersion>
 
 	<supportedVersions>
 		<li>1.5</li>
@@ -16,9 +16,14 @@
 - Automatically selects the most specific match for a pawn's gene set, or falls back to race/gender-appropriate ones if none match
 - Adds variety by randomly selecting one of several head types when a gene rule offers multiple choices</v1.5>
 
-		<v1.6>Adds a slightly different logic than [NL] Facial Animation WIP when it comes to gene part selection. Uses the FA field targetGeneDefs and adds more restrictions so heads are assigned appropriately. 
-		
-With the new gene-specific FA head sorting limiting choices in the FA part selector, instead use Character Editor to apply any head to your pawns.</v1.6>
+		<v1.6>Extends [NL] Facial Animation part selection with all-required gene matching for heads, brows, lids, mouths, and skins.
+
+- Adds conditional selection based on hediffs, traits, and creepjoiner forms
+- Refreshes affected facial parts when pawn conditions change
+- Supports custom render nodes for single Biotech-style eyes
+- Leaves eyeball gene matching and eye colors under Facial Animation's native handling
+
+The mod settings let each facial-component patch be enabled or disabled separately.</v1.6>
 	</descriptionsByVersion>
 
 	<loadAfterByVersion>
