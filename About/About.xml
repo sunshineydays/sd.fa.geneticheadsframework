@@ -7,6 +7,7 @@
 	<supportedVersions>
 		<li>1.5</li>
 		<li>1.6</li>
+		<li>1.7</li>
 	</supportedVersions>
 
 	<incompatibleWith>
@@ -29,6 +30,15 @@
 - Leaves eyeball gene matching and eye colors under Facial Animation's native handling
 
 The mod settings let each facial-component patch be enabled or disabled separately.</v1.6>
+		<v1.7>Extends [NL] Facial Animation part selection with all-required gene matching for heads, brows, lids, mouths, and skins.
+
+- Adds conditional selection based on hediffs, traits, and creepjoiner forms
+- Refreshes affected facial parts when pawn conditions change
+- Supports custom render nodes for single Biotech-style eyes
+- Leaves eyeball gene matching and eye colors under Facial Animation's native handling
+
+The mod settings let each facial-component patch be enabled or disabled separately.</v1.7>
+
 	</descriptionsByVersion>
 
 	<loadAfterByVersion>
@@ -55,6 +65,23 @@ The mod settings let each facial-component patch be enabled or disabled separate
 			<li>erin.shisune</li>
 			<li>rooboid.faun</li> 
 		</v1.6>
+
+		<v1.7>
+			<li>ludeon.rimworld.biotech</li>
+			<li>nals.facialanimation</li>
+			<li>hawkwood.facialanimationsxenotypecompatibility</li>
+		 	<li>sarg.alphagenes</li>
+			<li>vanillaracesexpanded.saurid</li>
+			<li>vanillaracesexpanded.android</li>
+			<li>vanillaracesexpanded.genie</li>
+			<li>vanillaracesexpanded.phytokin</li>
+			<li>vanillaracesexpanded.insector</li>		
+			<li>erin.auronyabiotech</li>
+			<li>erin.corvyia</li>
+			<li>erin.fenrisulfr</li>
+			<li>erin.shisune</li>
+			<li>rooboid.faun</li> 
+		</v1.7>
 	</loadAfterByVersion>
 
 	<modDependencies>
